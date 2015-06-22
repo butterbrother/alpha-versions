@@ -1,0 +1,4 @@
+[package]
+name = "cargo_inited"
+version = "0.1.0"
+authors = ["Oleg Bobukh <o.bobukh@yandex.ru>"]
