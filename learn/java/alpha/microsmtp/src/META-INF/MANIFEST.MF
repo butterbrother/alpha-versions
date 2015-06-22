@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: org.mailx.startup
+Created-By: Oleg Bobukh <o.bobukh@yandex.ru>
+Implementation-Version: 0.2
+
