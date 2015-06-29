@@ -1,30 +1,25 @@
-package nio;
-
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
 
-class DirListFilter {
+class DirectoryStreamWithFilter {
 	public static void main(String args[]) {
-		String dirname = "nio";
+		String dirname = "./";
 
 		DirectoryStream.Filter<Path> how = new DirectoryStream.Filter<Path>() {
 			public boolean accept(Path filename) throws IOException {
-				if (Files.isWritable(filename)) return true;
-				return false;
+				return Files.isWritable(filename);
 			}
 		};
 
 		try (DirectoryStream<Path> dirstrm = Files.newDirectoryStream(Paths.get(dirname), how)) {
 			System.out.println("Directory of " + dirname);
-
 			for (Path entry : dirstrm) {
 				BasicFileAttributes attribs = Files.readAttributes(entry, BasicFileAttributes.class);
-
 				if (attribs.isDirectory())
-					System.out.print("DIR ");
+					System.out.print("<DIR> ");
 				else
-					System.out.print("     ");
+					System.out.print("      ");
 
 				System.out.println(entry.getName(1));
 			}

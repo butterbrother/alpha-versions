@@ -1,5 +1,3 @@
-package nio;
-
 import java.nio.*;
 import java.io.*;
 import java.nio.channels.*;
