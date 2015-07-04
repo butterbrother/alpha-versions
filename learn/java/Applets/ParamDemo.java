@@ -38,7 +38,7 @@ public class ParamDemo extends Applet {
 		if (param != null)
 			active = Boolean.valueOf(param).booleanValue();
 
-		String text[] = {
+		text = new String[]{
 			"Font name: " + fontName,
 			"Font size: " + Integer.toString(fontSize),
 			"Leading: " + Float.toString(leading),
@@ -49,6 +49,7 @@ public class ParamDemo extends Applet {
 
 	public void paint(Graphics g) {
 		int y = 10;
+		if (text != null)
 		for (String textLine : text) {
 			g.drawString(textLine, 0, y);
 			y+=16;
