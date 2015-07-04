@@ -8,7 +8,7 @@ public class ParamBanner extends Applet implements Runnable {
 
 	public void init() {
 		setBackground(Color.black);
-		setBackground(Color.white);
+		setForeground(Color.white);
 	}
 
 	public void start() {
@@ -38,6 +38,6 @@ public class ParamBanner extends Applet implements Runnable {
 
 	public void paint(Graphics g) {
 		msg = msg.substring(1, msg.length()) + msg.charAt(0);
-		g.drawString(msg, 30, 50);
+		g.drawString(msg, 50, 30);
 	}
 }
