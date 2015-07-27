@@ -20,4 +20,12 @@ public interface staticValues {
     int EXIT_ERR_READ_CONFIG = 1;
     int EXIT_ERR_STARTUP = 2;
     int EXIT_INTERRUPTED = 3;
+
+    // Строка, завершающая запрос и ответ
+    String BREAK_STRING = "//<BREAK>//";
+    // Строка останова приложения
+    String STOP_STRING = "//<STOP>//";
+    // Строка перезапуска приложения
+    String RESTART_STRING = "//<RESTART>//";
+
 }
