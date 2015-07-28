@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
@@ -20,10 +21,10 @@ public class settingsStorage implements staticValues {
      * Инициализация с чтением файла настроек.
      * Неудачное чтение настроек аварийно завершит работу приложения
      *
-     * @param configFileName    Файл конфигурации
+     * @param configFileName Файл конфигурации
      */
     public settingsStorage(String configFileName) {
-        try (BufferedReader settingsReader = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(configFileName))),4096)) {
+        try (BufferedReader settingsReader = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(configFileName))), 4096)) {
             settings = new Properties();
             settings.load(settingsReader);
         } catch (IOException e) {
@@ -36,9 +37,9 @@ public class settingsStorage implements staticValues {
      * Получение параметра по его имени.
      * Регистр имени параметра при этом игнорируется.
      *
-     * @param parameterName     Имя параметра, ключ
-     * @return                  Значение параметра
-     * @throws ParameterNotFoundException   Параметр не найден
+     * @param parameterName Имя параметра, ключ
+     * @return Значение параметра
+     * @throws ParameterNotFoundException Параметр не найден
      */
     public String getParameter(String parameterName) throws ParameterNotFoundException {
         for (Map.Entry<Object, Object> item : settings.entrySet()) {
@@ -47,5 +48,133 @@ public class settingsStorage implements staticValues {
         }
 
         throw new ParameterNotFoundException();
+    }
+
+    /**
+     * Проверка наличия параметров для сервиса.
+     * Отдаёт набор настроек.
+     *
+     * @return Совокупность настроек для сервиса
+     */
+    public ServiceSettings checkServiceSettings() {
+        String URL = "", login = "", password = "", driver = null;
+        Path pid;
+        int port;
+        try {
+            URL = getParameter("URL");
+        } catch (ParameterNotFoundException e) {
+            System.err.println("ERROR: Database JDBC url not set. Set URL= parameter");
+            System.exit(EXIT_ERR_READ_CONFIG);
+        }
+
+        try {
+            login = getParameter("login");
+        } catch (ParameterNotFoundException e) {
+            System.out.println("WARN: Login not set. Use login= parameter");
+        }
+
+        try {
+            password = getParameter("password");
+        } catch (ParameterNotFoundException e) {
+            System.out.println("WARN: Password not set. Use password= parameter");
+        }
+
+        try {
+            driver = getParameter("driver");
+        } catch (ParameterNotFoundException e) {
+            System.out.println("WARN: JDBC driver not set. Use driver= parameter");
+        }
+
+        port = getPortParameter();
+
+        pid = getPidPathParameter();
+
+        // Проверяем, есть ли уже запущенный процесс
+        checkPidAvaliability(true, pid);
+
+        return new ServiceSettings(URL, login, password, driver, port, pid);
+    }
+
+    /**
+     * Проверка на наличие-отсутствие уже активного сервиса.
+     * Действует в зависимости от режима работы.
+     * Если клиент и нет pid-файла - аварийное завершение, сервис не запущен.
+     * Если сервер и есть pid-файл - аналогично, сервис уже запущен.
+     *
+     * @param isServerMode  Это режим сервера?
+     * @param pid           PID-файл
+     */
+    private void checkPidAvaliability(boolean isServerMode, Path pid) {
+        if (isServerMode && Files.exists(pid)) {
+            System.err.println("ERROR: process already run");
+            System.exit(EXIT_ERR_STARTUP);
+        }
+        if (! isServerMode && Files.notExists(pid)) {
+            System.err.println("ERROR: process not started");
+            System.exit(EXIT_ERR_STARTUP);
+        }
+    }
+
+    /**
+     * Проверяет наличие параметра расположения PID-файла в файле конфигурации
+     * Если параметр есть - будет отдан, иначе будет отдан путь по-умолчанию
+     *
+     * @return Расположение PID-файла.
+     */
+    private Path getPidPathParameter() {
+        try {
+            return Paths.get(getParameter("pid"));
+        } catch (ParameterNotFoundException e) {
+            System.out.println("WARN: PID file path not set. It file contain secret phrase. Use pid= to set it path. Using default -" + pidDefaultPath);
+            return Paths.get(pidDefaultPath);
+        }
+    }
+
+    /**
+     * Проверяет наличие параметра порта обработчика.
+     * Если есть параметр - будет отдан, иначе будет отдан порт по-умолчанию
+     *
+     * @return Порт обаботчика
+     */
+    private int getPortParameter() {
+        try {
+            return Integer.parseInt(getParameter("port"));
+        } catch (NumberFormatException e) {
+            System.out.println("WARN: Incorrect port: " + e);
+        } catch (ParameterNotFoundException e) {
+            System.out.println("INFO: Using port default port to inbound local connection");
+        }
+        return defaultPort;
+    }
+
+    /**
+     * Настройки для сервиса
+     */
+    public class ServiceSettings {
+        public String URL, login, password, driver;
+        public Path pidFile;
+        public int port;
+
+        private ServiceSettings(String URL, String login, String password, String driver, int port, Path pidFile) {
+            this.URL = URL;
+            this.login = login;
+            this.password = password;
+            this.driver = driver;
+            this.port = port;
+            this.pidFile = pidFile;
+        }
+    }
+
+    /**
+     * Настройки для клиента
+     */
+    public class ClientSettings {
+        public Path pidFile;
+        public int port;
+
+        private ClientSettings(Path pidFile, int port) {
+            this.pidFile = pidFile;
+            this.port = port;
+        }
     }
 }

@@ -61,24 +61,30 @@ public class cmdLineParser implements staticValues {
 
     /**
      * Получение режима работы.
-     *
+     * <p/>
      * Режимы работы описаны в staticValues
      *
-     * @return  заданный режим работы
+     * @return заданный режим работы
      */
-    public int getWorkMode() { return workMode; }
+    public int getWorkMode() {
+        return workMode;
+    }
 
     /**
      * Получение пути и имени файла конфигурации
      *
-     * @return  Путь к файлу конфигурации
+     * @return Путь к файлу конфигурации
      */
-    public String getConfigPath() { return configPath; }
+    public String getConfigPath() {
+        return configPath;
+    }
 
     /**
      * Получение пути и имени файла с SQL-запросом
      *
-     * @return  Путь к файлу с SQL-запросом
+     * @return Путь к файлу с SQL-запросом
      */
-    public String getQueryPath() { return queryPath; }
+    public String getQueryPath() {
+        return queryPath;
+    }
 }

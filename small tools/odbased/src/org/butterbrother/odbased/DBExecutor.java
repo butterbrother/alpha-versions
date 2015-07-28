@@ -8,39 +8,39 @@ import java.sql.*;
  * Выполняет запросы, получаемые от сокета.
  */
 public class DBExecutor implements staticValues, Runnable {
+    // Активное соединение
+    Connection currentConnection = null;
     // Параметры подключения к БД
     private String DBURL;
     private String login;
     private String password;
-
     // Состояние работы
     private boolean activity = false;
     private boolean connectionActive = false;
     private Thread dbExecutorProcess;
 
-    // Активное соединение
-    Connection currentConnection = null;
-
     /**
      * Инициализация.
      * Неудачная инициализация (ошибка загрузки драйвера) приведёт к аварийному завершению приложения
      *
-     * @param databaseURL       JDBC-URL
-     * @param userName          Логин
-     * @param userPassword      Пароль
-     * @param JDBCDriver        Имя драйвера
+     * @param databaseURL  JDBC-URL
+     * @param userName     Логин
+     * @param userPassword Пароль
+     * @param JDBCDriver   Имя драйвера. Может быть null
      */
-    public DBExecutor(String databaseURL, String userName, String userPassword, String JDBCDriver) {
+    public DBExecutor(String databaseURL, String userName, String userPassword, String JDBCDriver) throws DBExecutorInitException {
         // Регистрируем драйвер
-        try {
-            Driver driver = (Driver) Class.forName(JDBCDriver).newInstance();
-            DriverManager.registerDriver(driver);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            System.err.println("Unable to load JDBC driver " + JDBCDriver + ": " + e);
-            System.exit(EXIT_ERR_STARTUP);
-        } catch (SQLException e) {
-            System.err.println("Unable to register JDBC driver " + JDBCDriver + ": " + e);
-            System.exit(EXIT_ERR_STARTUP);
+        if (JDBCDriver != null) {
+            try {
+                Driver driver = (Driver) Class.forName(JDBCDriver).newInstance();
+                DriverManager.registerDriver(driver);
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                System.err.println("Unable to load JDBC driver " + JDBCDriver + ": " + e);
+                throw new DBExecutorInitException();
+            } catch (SQLException e) {
+                System.err.println("Unable to register JDBC driver " + JDBCDriver + ": " + e);
+                throw new DBExecutorInitException();
+            }
         }
 
         // Сохраняем настройки подключения
@@ -93,20 +93,17 @@ public class DBExecutor implements staticValues, Runnable {
      * Отключение исполнителя запросов.
      * Ожидается завершение работы процесса
      */
-    synchronized public void switchOff() {
+    synchronized public void switchOff() throws InterruptedException {
         System.out.println("Switch off DB connections");
         activity = false;
-        try {
-            dbExecutorProcess.join();
-        } catch (InterruptedException e) {
-            System.exit(EXIT_INTERRUPTED);
-        }
+        dbExecutorProcess.join();
     }
 
     /**
      * Выполнение запроса
-     * @param query     Запрос
-     * @return          Результат запроса
+     *
+     * @param query Запрос
+     * @return Результат запроса
      */
     public String executeQuery(String query) {
         if (activity && connectionActive && currentConnection != null) {
@@ -123,7 +120,7 @@ public class DBExecutor implements staticValues, Runnable {
                             if (i < meta.getColumnCount()) retValue.append("\t");
                         }
                     }
-                    if (! results.isLast()) retValue.append("\n");
+                    if (!results.isLast()) retValue.append("\n");
                 }
 
                 return retValue.toString();

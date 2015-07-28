@@ -24,6 +24,102 @@ public class serviceSocket implements Runnable, staticValues {
 
     // Кодовая фраза, для авторизации
     private String codePhrase;
+
+    // Управляющий процесс. Для передачи сигнала останова
+    private serviceProcess srv;
+
+    /**
+     * Инициализация сервисного сокета.
+     * Запуск его потока.
+     *
+     * @param dbExecutor    Исполнитель SQL-запросов
+     * @param port          Порт для обработки локальных соединений
+     * @param codePhrase    Кодовая фраза для управления
+     * @param masterProcess Управляющий процесс
+     * @throws IOException
+     */
+    public serviceSocket(DBExecutor dbExecutor, int port, String codePhrase, serviceProcess masterProcess) throws IOException {
+        this.dbExecutor = dbExecutor;
+        this.srv = masterProcess;
+        try {
+            daemon = new ServerSocket(port, 10, InetAddress.getLocalHost());
+        } catch (UnknownHostException ignore) {
+        }
+
+        this.codePhrase = codePhrase;
+
+        masterThread = new Thread(this, "Master Thread");
+        masterThread.start();
+    }
+
+    /**
+     * Мастер-подпроцесс, управляет соединениями
+     */
+    @Override
+    public void run() {
+        System.out.println("Starting service");
+        while (activity) {
+            System.out.println("Wainting connection...");
+            // Ожидаем соединение
+            try (Socket serverConnection = daemon.accept()) {
+                System.out.println("Accepted");
+                // Обрабатываем соединение
+                if (activity) new clientHandler(serverConnection);
+            } catch (SocketTimeoutException ignore) {
+                // Ждём снова
+            } catch (IOException e) {
+                System.out.println("Error: " + e);
+            }
+            System.out.println("Closed");
+        }
+        try {
+            daemon.close();
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+    }
+
+    /**
+     * Выключение сервиса
+     */
+    synchronized public void switchOff() throws InterruptedException {
+        System.out.println("Switch off service");
+        // Отключаем активность, вырубаем все клиентские соединения
+        activity = false;
+        for (Socket clientSocket : clients) {
+            try {
+                clientSocket.shutdownInput();
+                clientSocket.shutdownOutput();
+            } catch (IOException e) {
+                System.out.println("Warning: " + e);
+            } finally {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    System.out.println("Warning: " + e);
+                }
+            }
+        }
+
+        // Вырубаем клиентские подпроцессы, если такие остались
+        Thread[] clientThreads = new Thread[clientsSockets.activeCount()];
+        clientsSockets.enumerate(clientThreads);
+        for (Thread item : clientThreads) {
+            item.interrupt();
+        }
+
+        // Закрываем сервисный сокет
+        System.out.println("Closing service connector");
+        try {
+            daemon.close();
+        } catch (IOException e) {
+            System.out.println("Warning: " + e);
+        }
+
+        // Ожидаем завершения работы сервисного сокета
+        masterThread.join();
+    }
+
     /**
      * Подкласс, обрабатывающий клиентское соединение.
      * Обработка в отдельном потоке
@@ -39,7 +135,7 @@ public class serviceSocket implements Runnable, staticValues {
         /**
          * Инициализация и запуск
          *
-         * @param client    Клиентский сокет
+         * @param client Клиентский сокет
          */
         public clientHandler(Socket client) {
             this.client = client;
@@ -97,9 +193,9 @@ public class serviceSocket implements Runnable, staticValues {
 
                     // Ищем в запросе коды на останов и перезапуск
                     if (userRequestBuilder.toString().startsWith(STOP_STRING)) {
-                        //TODO: здесь посылать сингал стоп
+                        srv.stopSignal();
                     } else if (userRequestBuilder.toString().startsWith(RESTART_STRING)) {
-                        //TODO: анилогично, рестарт
+                        srv.restartSignal();
                     } else {
                         System.out.println("Executing inbound query: " + userRequestBuilder);
                         // Выполняем запрос, ждём результат
@@ -142,99 +238,6 @@ public class serviceSocket implements Runnable, staticValues {
             }
 
             System.out.println("Done");
-        }
-    }
-    /**
-     * Инициализация сервисного сокета.
-     * Запуск его потока.
-     *
-     * @param dbExecutor    Исполнитель SQL-запросов
-     * @param port     Порт для обработки локальных соединений
-     * @param codePhrase   Кодовая фраза для управления
-     *
-     * @throws IOException
-     */
-    public serviceSocket(DBExecutor dbExecutor, int port, String codePhrase) throws IOException {
-        this.dbExecutor = dbExecutor;
-        try {
-            daemon = new ServerSocket(port, 10, InetAddress.getLocalHost());
-        } catch (UnknownHostException ignore) {}
-
-        this.codePhrase = codePhrase;
-
-        masterThread = new Thread(this, "Master Thread");
-        masterThread.start();
-    }
-
-    /**
-     * Мастер-подпроцесс, управляет соединениями
-     */
-    @Override
-    public void run() {
-        System.out.println("Starting service");
-        while (activity) {
-            System.out.println("Wainting connection...");
-            // Ожидаем соединение
-            try (Socket serverConnection = daemon.accept()) {
-                System.out.println("Accepted");
-                // Обрабатываем соединение
-                if (activity) new clientHandler(serverConnection);
-            } catch (SocketTimeoutException ignore) {
-                // Ждём снова
-            } catch (IOException e) {
-                System.out.println("Error: " + e);
-            }
-            System.out.println("Closed");
-        }
-        try {
-            daemon.close();
-        } catch (IOException e) {
-            System.out.println("Error: " + e);
-        }
-    }
-
-    /**
-     * Выключение сервиса
-     */
-    synchronized public void switchOff() {
-        System.out.println("Switch off service");
-        // Отключаем активность, вырубаем все клиентские соединения
-        activity = false;
-        for (Socket clientSocket : clients) {
-            try {
-                clientSocket.shutdownInput();
-                clientSocket.shutdownOutput();
-            } catch (IOException e) {
-                System.out.println("Warning: " + e);
-            } finally {
-                try {
-                    clientSocket.close();
-                } catch (IOException e) {
-                    System.out.println("Warning: " + e);
-                }
-            }
-        }
-
-        // Вырубаем клиентские подпроцессы, если такие остались
-        Thread[] clientThreads = new Thread[clientsSockets.activeCount()];
-        clientsSockets.enumerate(clientThreads);
-        for (Thread item : clientThreads) {
-            item.interrupt();
-        }
-
-        // Закрываем сервисный сокет
-        System.out.println("Closing service connector");
-        try {
-            daemon.close();
-        } catch (IOException e) {
-            System.out.println("Warning: " + e);
-        }
-
-        // Ожидаем завершения работы сервисного сокета
-        try {
-            masterThread.join();
-        } catch (InterruptedException e) {
-            System.exit(EXIT_INTERRUPTED);
         }
     }
 }

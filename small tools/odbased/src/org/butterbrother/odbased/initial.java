@@ -20,7 +20,7 @@ public class initial implements staticValues {
     /**
      * Отображение справки по параметрам запуска
      */
-    public static void showHelp() {
+    private static void showHelp() {
         // Тут будет справка
         System.exit(0);
     }

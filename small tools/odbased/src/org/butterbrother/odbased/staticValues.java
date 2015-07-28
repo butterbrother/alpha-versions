@@ -13,7 +13,7 @@ public interface staticValues {
     int WORK_MODE_DEFAULT = WORK_MODE_CLIENT;
 
     // Имя файла конфигурации по-умолчанию
-    String DEFAULT_CONFIG_PATH ="odbased.properties";
+    String DEFAULT_CONFIG_PATH = "odbased.properties";
 
     // Коды возврата
     int EXIT_OK = 0;
@@ -28,4 +28,7 @@ public interface staticValues {
     // Строка перезапуска приложения
     String RESTART_STRING = "//<RESTART>//";
 
+    // Настройки по-умолчанию
+    int defaultPort = 11000;   // Порт
+    String pidDefaultPath = "odbcd.pid";    // pid-файл
 }

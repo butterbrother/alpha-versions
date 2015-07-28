@@ -15,7 +15,8 @@ public class ClientSocket implements Cloneable, AutoCloseable, staticValues {
 
     /**
      * Инициализация
-     * @param port  Порт сервиса
+     *
+     * @param port Порт сервиса
      * @throws IOException
      */
     public ClientSocket(int port) throws IOException {
@@ -27,7 +28,8 @@ public class ClientSocket implements Cloneable, AutoCloseable, staticValues {
 
     /**
      * Получение информации, есть ли ответные данные
-     * @return      Наличие данных от сервиса
+     *
+     * @return Наличие данных от сервиса
      * @throws IOException
      */
     public boolean haveResponse() throws IOException {
@@ -37,7 +39,8 @@ public class ClientSocket implements Cloneable, AutoCloseable, staticValues {
     /**
      * Отправка и досыл запроса. Для завершения запроса необходимо
      * запустить requestsDone.
-     * @param message       Сообщение либо часть сообщения
+     *
+     * @param message Сообщение либо часть сообщения
      * @throws IOException
      */
     public void sendRequest(String message) throws IOException {
@@ -46,6 +49,7 @@ public class ClientSocket implements Cloneable, AutoCloseable, staticValues {
 
     /**
      * Отправка служебного сообщения, что запрос полностью передана
+     *
      * @throws IOException
      */
     public void requestDone() throws IOException {
@@ -58,7 +62,7 @@ public class ClientSocket implements Cloneable, AutoCloseable, staticValues {
      * Если ответа нет, может быть возвращена пустая строка.
      * Ожидается служебное сообщение, что ответ полностью передан
      *
-     * @return              Ответ сервиса
+     * @return Ответ сервиса
      * @throws IOException
      */
     public String getResponse() throws IOException {
@@ -77,6 +81,7 @@ public class ClientSocket implements Cloneable, AutoCloseable, staticValues {
 
     /**
      * Закрытие соединения
+     *
      * @throws IOException
      */
     @Override
