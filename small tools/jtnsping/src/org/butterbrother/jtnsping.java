@@ -6,37 +6,37 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Выполняет тестовое подключение к БД Oracle(c)
+ * Р’С‹РїРѕР»РЅСЏРµС‚ С‚РµСЃС‚РѕРІРѕРµ РїРѕРґРєР»СЋС‡РµРЅРёРµ Рє Р‘Р” Oracle(c)
  */
 public class jtnsping {
     public static void main(String args[]) {
-        // Берём tns-имя из 1го параметра
+        // Р‘РµСЂС‘Рј tns-РёРјСЏ РёР· 1РіРѕ РїР°СЂР°РјРµС‚СЂР°
         if (args.length == 0) {
             System.err.println("Usage: java -Doracle.net.tns_admin=path_contains_tnsnames.ora jtnsping.jar TNS_NAME");
             System.exit(1);
         }
 
-        // Формируем URL
+        // Р¤РѕСЂРјРёСЂСѓРµРј URL
         String URL = "jdbc:oracle:thin:@" + args[0];
 
-        // Подключаемся
+        // РџРѕРґРєР»СЋС‡Р°РµРјСЃСЏ
         Connection sqlCon = null;
         try {
             OracleDataSource ods = new OracleDataSource();
             ods.setURL(URL);
             sqlCon = ods.getConnection();
         } catch (SQLException e) {
-            // При получении ошибки - отключаемся и отображаем ошибку
+            // РџСЂРё РїРѕР»СѓС‡РµРЅРёРё РѕС€РёР±РєРё - РѕС‚РєР»СЋС‡Р°РµРјСЃСЏ Рё РѕС‚РѕР±СЂР°Р¶Р°РµРј РѕС€РёР±РєСѓ
             switch (e.getErrorCode()) {
-                // Не отвечает база
+                // РќРµ РѕС‚РІРµС‡Р°РµС‚ Р±Р°Р·Р°
                 case 12514 :
                     System.out.println("Listener is UP but database is DOWN");
                     break;
-                // не отвечает listener
+                // РЅРµ РѕС‚РІРµС‡Р°РµС‚ listener
                 case 17002 :
                     System.out.println("Listener is DOWN");
                     break;
-                // User-logon denied, база жива
+                // User-logon denied, Р±Р°Р·Р° Р¶РёРІР°
                 case 1017 :
                     System.out.println("Listener is UP and database is UP");
                     break;
@@ -44,7 +44,7 @@ public class jtnsping {
                     System.out.println(e.getMessage());
             }
         } finally {
-            // Отключаемся
+            // РћС‚РєР»СЋС‡Р°РµРјСЃСЏ
             if (sqlCon != null)
                 try {
                     sqlCon.close();
