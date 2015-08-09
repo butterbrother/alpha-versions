@@ -32,6 +32,8 @@ public class serviceProcess implements staticValues {
             String secretPhrase = secretPhraseGenerator.generate(10);
             // Записываем в файл. Удалим по завершению работы
             try (PrintWriter pidRecord = new PrintWriter(new OutputStreamWriter(Files.newOutputStream(sConfig.pidFile, StandardOpenOption.DELETE_ON_CLOSE)), true)) {
+                sConfig.pidFile.toFile().setWritable(true);
+                sConfig.pidFile.toFile().setReadable(true);
                 pidRecord.println(secretPhrase);
 
                 // Запускаем обработчик БД

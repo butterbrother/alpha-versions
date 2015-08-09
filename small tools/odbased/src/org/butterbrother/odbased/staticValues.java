@@ -20,6 +20,7 @@ public interface staticValues {
     int EXIT_ERR_READ_CONFIG = 1;
     int EXIT_ERR_STARTUP = 2;
     int EXIT_INTERRUPTED = 3;
+    int EXIT_RUNTIME_ERROR = 4;
 
     // Строка, завершающая запрос и ответ
     String BREAK_STRING = "//<BREAK>//";

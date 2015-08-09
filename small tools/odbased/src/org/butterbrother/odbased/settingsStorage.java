@@ -3,6 +3,7 @@ package org.butterbrother.odbased;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,14 +17,18 @@ import java.util.Properties;
 public class settingsStorage implements staticValues {
     // Параметры
     private Properties settings;
+    // Файл запроса
+    private String sqlFileName;
 
     /**
      * Инициализация с чтением файла настроек.
      * Неудачное чтение настроек аварийно завершит работу приложения
      *
      * @param configFileName Файл конфигурации
+     * @param sqlFileName    Файл с запросом
      */
-    public settingsStorage(String configFileName) {
+    public settingsStorage(String configFileName, String sqlFileName) {
+        this.sqlFileName = sqlFileName;
         try (BufferedReader settingsReader = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(configFileName))), 4096)) {
             settings = new Properties();
             settings.load(settingsReader);
@@ -93,6 +98,39 @@ public class settingsStorage implements staticValues {
         checkPidAvaliability(true, pid);
 
         return new ServiceSettings(URL, login, password, driver, port, pid);
+    }
+
+    /**
+     * Проверяет наличие параметров для клиента
+     *
+     * @return  Совокупность параметров клиента
+     */
+    public ClientSettings checkClientSettings() {
+        int port = getPortParameter();
+        Path pid = getPidPathParameter();
+
+        // Проверяем, есть ли уже запущенный процесс
+        checkPidAvaliability(false, pid);
+
+        // Если существует файл с запросом - считываем запрос и сохраняем
+        String sqlRequest = "";
+        if (sqlFileName != null && ! sqlFileName.isEmpty()) {
+            Path sqlFile = Paths.get(sqlFileName);
+            if (Files.exists(sqlFile) && Files.isRegularFile(sqlFile)) {
+                try (BufferedReader sqlCommandReader = new BufferedReader(Files.newBufferedReader(sqlFile, StandardCharsets.UTF_8))) {
+                    String buffer;
+                    StringBuilder cmdReader = new StringBuilder();
+                    while ((buffer = sqlCommandReader.readLine()) != null)
+                        cmdReader.append(buffer).append('\n');
+                    sqlRequest = cmdReader.toString();
+                } catch (IOException e) {
+                    System.err.println("ERROR: unable to read sql commands file " + e);
+                    sqlRequest = "";
+                }
+            }
+        }
+
+        return new ClientSettings(pid, port, sqlRequest);
     }
 
     /**
@@ -171,10 +209,12 @@ public class settingsStorage implements staticValues {
     public class ClientSettings {
         public Path pidFile;
         public int port;
+        public String sqlRequest;
 
-        private ClientSettings(Path pidFile, int port) {
+        private ClientSettings(Path pidFile, int port, String sqlRequest) {
             this.pidFile = pidFile;
             this.port = port;
+            this.sqlRequest = sqlRequest;
         }
     }
 }
