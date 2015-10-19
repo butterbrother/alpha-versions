@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Реализация возможности запуска самого себя в фоне под различными ОС.
@@ -24,33 +25,33 @@ public final class itselfBackground {
      * @throws Exception невозможно запустить себя в фоне
      */
     public itselfBackground(String ... cmdParams) throws Exception {
-        // Определяем ОС, из под которой запускаемся
+        // Параметры запуска, специфичные для ОС
         String execAppend;  // путь к java
         String execPrecmd[];    // команды, необходимые для запуска в фоне
         String execDetachCmd = "&";   // суффикс, необходимый для отделения команды от терминала
-        switch (System.getProperty("os.name").toLowerCase()) {
-            case "windows":
-                execAppend = "\\bin\\java.exe";
-                execPrecmd = new String[2];
-                execPrecmd[0] = "cmd.exe";
-                execPrecmd[1] = "start";
-                break;
-            case "linux":
-            case "sunos":
-                execAppend = "/bin/java";
-                execPrecmd = new String[1];
-                execPrecmd[0] = "nohup";
-                break;
-            default:
-                // Если ОС нераспознана - способ запуска в фоне неизвестен
-                throw new Exception("Unsupported OS");
+
+        // Определяем ОС, из под которой запускаемся
+        // Задаём специфичные параметры запуска
+        String osName = System.getProperty("os.name").toLowerCase();
+        if (osName.startsWith("win")) {
+            execAppend = "\\bin\\javaw.exe";
+            execPrecmd = new String[0];
+        } else if ((osName.startsWith("linux")) || (osName.startsWith("sunos"))) {
+            execAppend = "/bin/java";
+            execPrecmd = new String[1];
+            execPrecmd[0] = "nohup";
+        } else {
+            // Если ОС нераспознана - способ запуска в фоне неизвестен
+            throw new Exception("Unsupported OS - " + System.getProperty("os.name"));
         }
 
         // Определяем путь к исполнимому файлу java
         Path javaExec = Paths.get(System.getProperty("java.home"), execAppend);
 
         // Определяем расположение собственного jar-файла
-        Path jarPath = Paths.get(itselfBackground.class.getProtectionDomain().getCodeSource().toString()).toAbsolutePath();
+        Path jarPath = Paths.get(
+            itselfBackground.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+        );
 
         // Подготавливаем к запуску
         LinkedList<String> execBuild = new LinkedList<>();
@@ -76,5 +77,14 @@ public final class itselfBackground {
      */
     public void exec() throws IOException {
         executor.start();
+    }
+
+    /**
+     * Получение аргументов запуска
+     *
+     * @return  аргументы запуска
+     */
+    public List<String> getCmdLine() {
+        return executor.command();
     }
 }
