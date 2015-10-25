@@ -1,14 +1,19 @@
 package com.github.butterbrother.zajdag.core;
 
 /**
- * Интерфейс для логгера
+ * РРЅС‚РµСЂС„РµР№СЃ РґР»СЏ Р»РѕРіРіРµСЂР°
  */
 public interface logger {
-    // Запись различного уровня логов
-    void debug(Object ... message);
-    void info(Object ... message);
-    void warning(Object ... message);
-    void warning(Exception error, Object ... additionalInfo);
+    // Р—Р°РїРёСЃСЊ СЂР°Р·Р»РёС‡РЅРѕРіРѕ СѓСЂРѕРІРЅСЏ Р»РѕРіРѕРІ
+    void debug(Object... message);
+
+    void info(Object... message);
+
+    void warning(Object... message);
+
+    void warning(Exception error, Object... additionalInfo);
+
     void error(Exception error);
-    void error(Exception error, Object ... additionalInfo);
+
+    void error(Exception error, Object... additionalInfo);
 }

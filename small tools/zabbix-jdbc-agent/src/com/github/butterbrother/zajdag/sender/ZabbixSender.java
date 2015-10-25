@@ -1,58 +1,85 @@
 package com.github.butterbrother.zajdag.sender;
 
 import com.github.butterbrother.zajdag.core.logger;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.concurrent.SynchronousQueue;
 
 /**
- * Выполняет отправку данные в zabbix, как активный агент
- *
- * Спецификация доступна тут:
+ * Р’С‹РїРѕР»РЅСЏРµС‚ РѕС‚РїСЂР°РІРєСѓ РґР°РЅРЅС‹Рµ РІ zabbix, РєР°Рє Р°РєС‚РёРІРЅС‹Р№ Р°РіРµРЅС‚
+ * <p/>
+ * РЎРїРµС†РёС„РёРєР°С†РёСЏ РґРѕСЃС‚СѓРїРЅР° С‚СѓС‚:
  * https://www.zabbix.com/documentation/2.0/ru/manual/appendix/items/activepassive
  * https://www.zabbix.org/wiki/Docs/protocols/zabbix_agent/2.0
  */
 public class ZabbixSender {
-    // Собственные имена хостов, может быть несколько
-    private String[] hostNames;
-    // Имена хостов Zabbix-серверов
-    private String[] serverNames;
-    // Логгер, для выполнения логгирования
+    // РЎРѕР±СЃС‚РІРµРЅРЅРѕРµ РёРјСЏ С…РѕСЃС‚Р°
+    private String hostName;
+    // РЎРѕР±СЃС‚РІРµРЅРЅС‹Р№ IP. Р•СЃР»Рё РїСѓСЃС‚РѕРµ РёР»Рё null, С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РёРјСЏ С…РѕСЃС‚Р°
+    private String hostIP;
+    // РЎРѕР±СЃС‚РІРµРЅРЅС‹Р№ РїРѕСЂС‚ РґР»СЏ РїР°СЃСЃРёРІРЅС‹С… РїСЂРѕРІРµСЂРѕРє. Р•СЃР»Рё 0 - РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ. РРЅР°С‡Рµ
+    // РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ СЃРѕС‡РµС‚Р°СЂРёРё СЃ hostIP
+    private int port;
+    // РРјРµРЅР° С…РѕСЃС‚Р° Zabbix-СЃРµСЂРІРµСЂР°
+    private String zabbixServer;
+    // Р›РѕРіРіРµСЂ, РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ Р»РѕРіРіРёСЂРѕРІР°РЅРёСЏ
     private logger log;
+    // РРЅС‚РµСЂРІР°Р» РѕС‚РїСЂР°РІРєРё РґР°РЅРЅС‹С…
+    private int interval;
 
-    public ZabbixSender(String[] hostNames, String[] serverNames) {
-        this.hostNames = hostNames;
-        this.serverNames = serverNames;
+    // РћС‡РµСЂРµРґСЊ РґР°РЅРЅС‹С…
+    private SynchronousQueue<ItemData> dataQueue;
+
+    /**
+     * РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р°РєС‚РёРІРЅРѕРіРѕ Р°РіРµРЅС‚Р°.
+     * Р•СЃР»Рё СѓРєР°Р·Р°РЅ hostIP Рё РїРѕСЂС‚ РѕС‚Р»РёС‡РµРЅ РѕС‚ 0, С‚Рѕ СЌС‚Р° РїР°СЂР° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+     * РїСЂРё Р·Р°РїСЂРѕСЃРµ Р°РєС‚РёРІРЅРѕР№ РїСЂРѕРІРµСЂРєРё
+     *
+     * @param hostName     РЎРѕР±СЃС‚РІРµРЅРЅРѕРµ РёРјСЏ С…РѕСЃС‚Р°. РњРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј Рё null
+     * @param hostIP       РЎРѕР±СЃС‚РІРµРЅРЅС‹Р№ IP
+     * @param port         РџРѕСЂС‚ РґР»СЏ РїР°СЃСЃРёРІРЅРѕР№ РїСЂРѕРІРµСЂРєРё
+     * @param zabbixServer РРјСЏ zabbix-СЃРµСЂРІРµСЂР°
+     * @param log          Р›РѕРіРіРµСЂ
+     * @param delay        РџР°СѓР·Р° РјРµР¶РґСѓ СЃРѕРѕР±С‰РµРЅРёСЏРјРё, РІ СЃРµРєСѓРЅРґР°С…
+     * @param dataQueue    РћС‡РµСЂРµРґСЊ СЃРѕР±СЂР°РЅРЅС‹С… РґР°РЅРЅС‹С…
+     */
+    public ZabbixSender(String hostName, String hostIP, int port, String zabbixServer,
+                        logger log, int delay, SynchronousQueue<ItemData> dataQueue) {
+        this.hostName = hostName;
+        this.hostIP = hostIP;
+        this.port = port;
+        this.zabbixServer = zabbixServer;
+        this.log = log;
+        this.interval = delay;
+        this.dataQueue = dataQueue;
     }
 
     /**
-     * Формирование данные для передачи в zabbix
-     * @param message   Сообщение
-     * @return          Данные для пересылки
+     * Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РґР°РЅРЅС‹Рµ РґР»СЏ РїРµСЂРµРґР°С‡Рё РІ zabbix
+     *
+     * @param message РЎРѕРѕР±С‰РµРЅРёРµ
+     * @return Р”Р°РЅРЅС‹Рµ РґР»СЏ РїРµСЂРµСЃС‹Р»РєРё
      */
-    public byte[] buildMessageData(String message) {
-        // Данные сообщения, сконвертированные в байты, кодировка - UTF-8
+    private byte[] buildMessageData(String message) {
+        // Р”Р°РЅРЅС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ, СЃРєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅРЅС‹Рµ РІ Р±Р°Р№С‚С‹, РєРѕРґРёСЂРѕРІРєР° - UTF-8
         byte[] messageData = message.getBytes(Charset.forName("UTF-8"));
 
-        // Длина сообщения
+        // Р”Р»РёРЅР° СЃРѕРѕР±С‰РµРЅРёСЏ
         int length = messageData.length;
 
-        // Заголовок сообщения
+        // Р—Р°РіРѕР»РѕРІРѕРє СЃРѕРѕР±С‰РµРЅРёСЏ
         byte[] header = {
-                'Z', 'B', 'X', 'D', '\1', // Заголовок, "ZBXD\x01", 5 байт
-                // DATALEN - длина данных, 8 байт в HEX, 64-битная последовательность
-                (byte)(length & 0xFF),
-                (byte)(length >> 8 & 0x00FF),
-                (byte)(length >> 16 & 0x0000FF),
-                (byte)(length >> 24 & 0x000000FF),
+                'Z', 'B', 'X', 'D', '\1', // Р—Р°РіРѕР»РѕРІРѕРє, "ZBXD\x01", 5 Р±Р°Р№С‚
+                // DATALEN - РґР»РёРЅР° РґР°РЅРЅС‹С…, 8 Р±Р°Р№С‚ РІ HEX, 64-Р±РёС‚РЅР°СЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ
+                (byte) (length & 0xFF),
+                (byte) (length >> 8 & 0x00FF),
+                (byte) (length >> 16 & 0x0000FF),
+                (byte) (length >> 24 & 0x000000FF),
                 '\0', '\0', '\0', '\0',
         };
 
-        // Формируем сообщение
+        // Р¤РѕСЂРјРёСЂСѓРµРј СЃРѕРѕР±С‰РµРЅРёРµ
         byte[] readyMessage = new byte[header.length + length];
         System.arraycopy(header, 0, readyMessage, 0, header.length);
         System.arraycopy(messageData, 0, readyMessage, header.length, length);
@@ -61,22 +88,32 @@ public class ZabbixSender {
     }
 
     /**
-     * Создание запроса на получение списка элемента данных.
-     * В ответ на это сообщение сервер возвращает список пробников,
-     * которые могут мониториться. Либо ошибку.
+     * РЎРѕР·РґР°РЅРёРµ Р·Р°РїСЂРѕСЃР° РЅР° РїРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° СЌР»РµРјРµРЅС‚Р° РґР°РЅРЅС‹С….
+     * Р’ РѕС‚РІРµС‚ РЅР° СЌС‚Рѕ СЃРѕРѕР±С‰РµРЅРёРµ СЃРµСЂРІРµСЂ РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє РїСЂРѕР±РЅРёРєРѕРІ,
+     * РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ РјРѕРЅРёС‚РѕСЂРёС‚СЊСЃСЏ. Р›РёР±Рѕ РѕС€РёР±РєСѓ.
      *
-     * @param localhostName Собственное имя хоста из переданного массива
-     * @return  Запрос
+     * @return Р—Р°РїСЂРѕСЃ
      */
-    public byte[] createActiveChecksRequest(String localhostName) {
-        return buildMessageData(
-                new JSONObject()
-                .put("request", "active checks")
-                .put("host", localhostName)
-                .toString());
+    private byte[] createActiveChecksRequest() {
+        if (hostIP != null && port != 0) {
+            return buildMessageData(
+                    new JSONObject()
+                            .put("host", hostName)
+                            .put("ip", hostIP)
+                            .put("port", port)
+                            .put("request", "active checks")
+                            .toString());
+        } else {
+            return buildMessageData(
+                    new JSONObject()
+                            .put("request", "active checks")
+                            .put("host", hostName)
+                            .toString());
+        }
     }
 
-    // Это проба отправки данных
+    /*
+    // Р­С‚Рѕ РїСЂРѕР±Р° РѕС‚РїСЂР°РІРєРё РґР°РЅРЅС‹С…
     public static void main(String args[]) {
         ZabbixSender sender = new ZabbixSender(new String[0], new String[0]);
 
@@ -91,12 +128,10 @@ public class ZabbixSender {
                     reqSender.write(sender.createActiveChecksRequest("mn-b2b.vimpelcom.ru"));
                     reqSender.flush();
                     System.out.println("Request send");
-                    /*
                     while (responce.available() == 0) {
                         Thread.sleep(100);
                         System.out.print("waiting... ");
                     }
-                    */
                     Thread.sleep(0);
                     System.out.println();
                     BufferedReader result = new BufferedReader(new InputStreamReader(responce, "UTF-8"));
@@ -110,4 +145,5 @@ public class ZabbixSender {
             e.printStackTrace();
         }
     }
+                    */
 }
