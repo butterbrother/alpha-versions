@@ -4,24 +4,21 @@ import org.json.JSONObject;
 
 /**
  * Данные для элемента данных zabbix
+ * Абстрактный класс для типизированных элементов данных.
  */
-public class ItemData {
+abstract public class ItemData {
     // Ключ элемента данных
     private String key;
-    // Значение элемента данных
-    private Object value;
     // Дата получения результата
     private long clock;
 
     /**
      * Заполнение данных элемента данных
      *
-     * @param key   ключ элемента данных
-     * @param value результат
+     * @param key ключ элемента данных
      */
-    public ItemData(String key, Object value) {
+    protected ItemData(String key) {
         this.key = key;
-        this.value = value;
         clock = System.currentTimeMillis() / 1000L;
     }
 
@@ -30,11 +27,9 @@ public class ItemData {
      *
      * @return Данные в JSON
      */
-    public JSONObject getJSONdata(String hostName) {
+    protected JSONObject getJSONdata() {
         return new JSONObject()
-                .put("host", hostName)
                 .put("key", key)
-                .put("value", value)
                 .put("clock", clock);
     }
 }

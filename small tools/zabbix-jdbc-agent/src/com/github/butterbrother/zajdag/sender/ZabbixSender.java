@@ -3,17 +3,21 @@ package com.github.butterbrother.zajdag.sender;
 import com.github.butterbrother.zajdag.core.logger;
 import org.json.JSONObject;
 
+import java.io.*;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.util.concurrent.SynchronousQueue;
+import java.util.StringTokenizer;
 
 /**
  * Выполняет отправку данные в zabbix, как активный агент
- * <p/>
+ * <p>
  * Спецификация доступна тут:
  * https://www.zabbix.com/documentation/2.0/ru/manual/appendix/items/activepassive
  * https://www.zabbix.org/wiki/Docs/protocols/zabbix_agent/2.0
  */
-public class ZabbixSender {
+public class ZabbixSender
+        implements Runnable {
     // Собственное имя хоста
     private String hostName;
     // Собственный IP. Если пустое или null, то используется только имя хоста
@@ -21,15 +25,19 @@ public class ZabbixSender {
     // Собственный порт для пассивных проверок. Если 0 - не используется. Иначе
     // используется в сочетарии с hostIP
     private int port;
-    // Имена хоста Zabbix-сервера
-    private String zabbixServer;
+    // Имя хоста Zabbix-сервера
+    private String zabbixHostname;
+    // Порт Zabbix-сервера
+    private int zabbixPort;
     // Логгер, для выполнения логгирования
     private logger log;
     // Интервал отправки данных
     private int interval;
+    // Состояние потока, переключалка
+    private boolean active = false;
 
-    // Очередь данных
-    private SynchronousQueue<ItemData> dataQueue;
+    // Очередь данных для отправки
+    private ItemDataQueue queue;
 
     /**
      * Инициализация активного агента.
@@ -42,17 +50,36 @@ public class ZabbixSender {
      * @param zabbixServer Имя zabbix-сервера
      * @param log          Логгер
      * @param delay        Пауза между сообщениями, в секундах
-     * @param dataQueue    Очередь собранных данных
      */
     public ZabbixSender(String hostName, String hostIP, int port, String zabbixServer,
-                        logger log, int delay, SynchronousQueue<ItemData> dataQueue) {
+                        logger log, int delay) {
         this.hostName = hostName;
         this.hostIP = hostIP;
         this.port = port;
-        this.zabbixServer = zabbixServer;
         this.log = log;
         this.interval = delay;
-        this.dataQueue = dataQueue;
+        this.queue = new ItemDataQueue(hostName, hostIP, port);
+
+        // Разделяем имя сервера и порт
+        StringTokenizer destination = new StringTokenizer(zabbixServer, ":");
+        zabbixHostname = destination.nextToken();
+        zabbixPort = 10050;
+        if (destination.hasMoreElements()) {
+            try {
+                zabbixPort = Integer.parseInt(destination.nextToken());
+            } catch (NumberFormatException e) {
+                log.warning(e, "Unable to parse port number");
+            }
+        }
+    }
+
+    /**
+     * Получение очереди для отправки данных
+     *
+     * @return Очередь для отправки данных
+     */
+    public ItemDataQueue getQueue() {
+        return queue;
     }
 
     /**
@@ -87,6 +114,7 @@ public class ZabbixSender {
         return readyMessage;
     }
 
+
     /**
      * Создание запроса на получение списка элемента данных.
      * В ответ на это сообщение сервер возвращает список пробников,
@@ -95,55 +123,153 @@ public class ZabbixSender {
      * @return Запрос
      */
     private byte[] createActiveChecksRequest() {
-        if (hostIP != null && port != 0) {
-            return buildMessageData(
-                    new JSONObject()
-                            .put("host", hostName)
-                            .put("ip", hostIP)
-                            .put("port", port)
-                            .put("request", "active checks")
-                            .toString());
-        } else {
-            return buildMessageData(
-                    new JSONObject()
-                            .put("request", "active checks")
-                            .put("host", hostName)
-                            .toString());
-        }
+        JSONObject activeRequest = new JSONObject()
+                .put("host", hostName)
+                .put("request", "active checks");
+
+        if (hostIP != null)
+            activeRequest.put("ip", hostIP);
+
+        if (port != 0)
+            activeRequest.put("port", port);
+
+        return buildMessageData(activeRequest.toString());
     }
 
-    /*
-    // Это проба отправки данных
-    public static void main(String args[]) {
-        ZabbixSender sender = new ZabbixSender(new String[0], new String[0]);
+    /**
+     * Активизация отправителя данных
+     */
+    public void activate() {
+        this.active = true;
+        new Thread(this).start();
+    }
 
-        try {
-            InetAddress zabbixServer = InetAddress.getByName("enswiki.vimpelcom.ru");
-            System.out.println("Opening socket");
-            try (Socket connection = new Socket(zabbixServer, 10051)) {
-                try (OutputStream reqSender = connection.getOutputStream();
-                     InputStream responce = connection.getInputStream()) {
-                    System.out.println("Sending request");
-                    System.out.println(new String(sender.createActiveChecksRequest("mn-b2b.vimpelcom.ru")));
-                    reqSender.write(sender.createActiveChecksRequest("mn-b2b.vimpelcom.ru"));
-                    reqSender.flush();
-                    System.out.println("Request send");
-                    while (responce.available() == 0) {
-                        Thread.sleep(100);
-                        System.out.print("waiting... ");
-                    }
-                    Thread.sleep(0);
-                    System.out.println();
-                    BufferedReader result = new BufferedReader(new InputStreamReader(responce, "UTF-8"));
-                    String buffer;
-                    while ((buffer = result.readLine()) != null) {
-                        System.out.println(buffer);
-                    }
+    /**
+     * Деактивация отправителя данных.
+     * Не сбрасывает его состояние.
+     * Можно продолжить вновь через activate
+     */
+    public void deactivate() {
+        this.active = false;
+    }
+
+    /**
+     * Отправка данных в Zabbix
+     *
+     * @param data Передаваемые данные
+     * @return Ответ от сервера, сразу в JSON
+     */
+    private JSONObject sendDataToZabbix(byte[] data) {
+        // Билдер для ответа от сервера
+        StringBuilder responseBuilder = new StringBuilder();
+
+        // Создаём подключение
+        try (Socket connection = new Socket(zabbixHostname, zabbixPort);
+             InputStream connectionInput = connection.getInputStream();
+             BufferedOutputStream connectionOutput = new BufferedOutputStream(connection.getOutputStream())
+        ) {
+            // Запрашиваем информацию о доступных элементах данных
+            connectionOutput.write(data);
+            connectionOutput.flush();
+
+            // Ждём ответные данные
+            while (connectionInput.available() == 0 && active) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException intE) {
+                    active = false;
                 }
             }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+
+            // Пропускаем первые 13 байт с заголовком
+            long skipped = connectionInput.skip(13);
+            // Считываем остальной ответ сервера
+            String buffer;
+            try (BufferedReader responseBuffer = new BufferedReader(new InputStreamReader(connectionInput, Charset.forName("UTF-8")))) {
+                while ((buffer = responseBuffer.readLine()) != null)
+                    responseBuilder.append(buffer);
+            }
+        } catch (UnknownHostException e) {
+            log.error(e, "Unknown host: " + zabbixHostname + ":" + zabbixPort);
+        } catch (IOException e) {
+            log.error(e, "Connection error");
+        }
+
+        return new JSONObject(responseBuilder.toString());
+    }
+
+    /**
+     * Проверка успешности передачи данных на отсутствие фатальных ошибок
+     *
+     * @param response Полученные данные от сервера
+     * @return Отсутствие фатальных ошибок
+     */
+    private boolean checkResponseResult(JSONObject response) {
+        // Смотрим, есть ли сообщения об ошибке.
+        String responseResult = response.getString("response");
+        if (responseResult.equals("failed")) {
+            log.warning(response.get("info"));
+            return false;
+        } else {
+            log.debug("Success response:");
+            log.debug(response.get("data"));
+            return true;
         }
     }
-                    */
+
+    /**
+     * Отправка активного запроса.
+     * Ответ от сервера не анализируется, только поиск неудачного ответа.
+     * Поэтому выполняется однократно, при старте.
+     * Далее просто упорно отсылаем данные.
+     */
+    private void sendActiveRequest() {
+        // Отправляем запрос
+        JSONObject response = sendDataToZabbix(createActiveChecksRequest());
+        // Просто проверяем успешность передачи, дальше не парсим
+        checkResponseResult(response);
+    }
+
+    /**
+     * Отправка накопленных данных
+     */
+    private void sendItemsData() {
+        // Формируем запрос
+        JSONObject request = new JSONObject()
+                .put("request", "agent data")
+                .put("data", queue.getJSONdata())
+                .put("clock", System.currentTimeMillis() / 1000L);
+
+        // Отправляем
+        JSONObject response = sendDataToZabbix(buildMessageData(request.toString()));
+
+        // Проверяем, есть ли фатальные ошибки, если нет - выводим результат отправки в лог
+        if (checkResponseResult(response))
+            log.info(response.get("info"));
+    }
+
+    /**
+     * Основной рабочий поток.
+     * Запуск через activate
+     * Останове через deactivate
+     * Важно, что deactivate не сбрасывает состояние агента
+     */
+    @Override
+    public void run() {
+        // Выполняем запрос на активный мониторинг
+        sendActiveRequest();
+
+        while (active) {
+            // Далее пауза, в ходе которой мы собираем данные
+            try {
+                Thread.sleep(interval * 1000);
+            } catch (InterruptedException e) {
+                active = false;
+            }
+            // Отправка данных. Отправляем данные только если есть, что отправлять
+            if (active && queue.size() > 0) {
+                sendItemsData();
+            }
+        }
+    }
 }
