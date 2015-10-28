@@ -1,5 +1,6 @@
 package com.github.butterbrother.zajdag.sender;
 
+import com.github.butterbrother.zajdag.core.logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -21,6 +22,9 @@ public class ItemDataQueue
     // Семафор
     private boolean blocked = false;
 
+    // Логгер
+    private logger log;
+
     /**
      * Инициализация очереди с параметрами агента
      *
@@ -28,11 +32,12 @@ public class ItemDataQueue
      * @param ip       IP-адрес, не обязательное поле
      * @param port     Порт. Может быть 0, если не обязателен
      */
-    public ItemDataQueue(String hostname, String ip, int port) {
+    public ItemDataQueue(String hostname, String ip, int port, logger log) {
         super();
         this.hostname = hostname;
         this.ip = ip;
         this.port = port;
+        this.log = log;
     }
 
     /**
@@ -46,10 +51,12 @@ public class ItemDataQueue
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
+                log.debug("Interrupted, but ignored (nothing to doing)");
             }
         }
         blocked = true;
         super.offer(new NumericItemData(key, value));
+        log.debug("Added integer: [", key, "]-[",value, "]");
         blocked = false;
     }
 
@@ -64,9 +71,11 @@ public class ItemDataQueue
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
+                log.debug("Interrupted, but ignored (nothing to doing)");
             }
             blocked = true;
             super.offer(new FloatItemData(key, value));
+            log.debug("Added float: [", key, "]-[",value, "]");
             blocked = false;
         }
     }
@@ -82,9 +91,11 @@ public class ItemDataQueue
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
+                log.debug("Interrupted, but ignored (nothing to doing)");
             }
             blocked = true;
             super.offer(new TextItemData(key, value));
+            log.debug("Added text: [", key, "]-[",value, "]");
             blocked = false;
         }
     }
@@ -101,10 +112,13 @@ public class ItemDataQueue
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
+                log.debug("Interrupted, but ignored (nothing to doing)");
             }
         }
         blocked = true;
 
+        log.debug("Building JSON data array");
+        log.debug("Total items count:", super.size());
         JSONArray JSONData = new JSONArray();
         ItemData buffer;
         JSONObject json;
@@ -117,9 +131,11 @@ public class ItemDataQueue
             if (port > 0)
                 json.put("port", port);
 
+            log.debug("Adding ", json);
             JSONData.put(json);
         }
 
+        log.debug("Build complete, now queue size:", super.size());
         blocked = false;
 
         return JSONData;

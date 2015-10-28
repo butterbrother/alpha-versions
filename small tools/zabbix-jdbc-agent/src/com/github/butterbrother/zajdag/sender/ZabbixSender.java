@@ -58,7 +58,7 @@ public class ZabbixSender
         this.port = port;
         this.log = log;
         this.interval = delay;
-        this.queue = new ItemDataQueue(hostName, hostIP, port);
+        this.queue = new ItemDataQueue(hostName, hostIP, port, log.getModuleLogger("Item Data Queue"));
 
         // Разделяем имя сервера и порт
         StringTokenizer destination = new StringTokenizer(zabbixServer, ":");
@@ -71,6 +71,7 @@ public class ZabbixSender
                 log.warning(e, "Unable to parse port number");
             }
         }
+        log.debug("Zabbix hostname set as ", zabbixHostname, ", Zabbix port set as ", zabbixPort);
     }
 
     /**
@@ -105,6 +106,7 @@ public class ZabbixSender
                 (byte) (length >> 24 & 0x000000FF),
                 '\0', '\0', '\0', '\0',
         };
+        log.debug(header, "Message header");
 
         // Формируем сообщение
         byte[] readyMessage = new byte[header.length + length];
@@ -133,6 +135,7 @@ public class ZabbixSender
         if (port != 0)
             activeRequest.put("port", port);
 
+        log.debug("Active request is ", activeRequest);
         return buildMessageData(activeRequest.toString());
     }
 
@@ -140,6 +143,7 @@ public class ZabbixSender
      * Активизация отправителя данных
      */
     public void activate() {
+        log.debug("Zabbix sender activated");
         this.active = true;
         new Thread(this).start();
     }
@@ -150,6 +154,7 @@ public class ZabbixSender
      * Можно продолжить вновь через activate
      */
     public void deactivate() {
+        log.debug("Zabbix sender deactivated");
         this.active = false;
     }
 
@@ -164,25 +169,31 @@ public class ZabbixSender
         StringBuilder responseBuilder = new StringBuilder();
 
         // Создаём подключение
+        log.debug("Opening connection to ", zabbixHostname, ":", zabbixPort);
         try (Socket connection = new Socket(zabbixHostname, zabbixPort);
              InputStream connectionInput = connection.getInputStream();
              BufferedOutputStream connectionOutput = new BufferedOutputStream(connection.getOutputStream())
         ) {
             // Запрашиваем информацию о доступных элементах данных
+            log.debug("Writing data");
             connectionOutput.write(data);
             connectionOutput.flush();
 
             // Ждём ответные данные
+            log.debug("Waiting response");
             while (connectionInput.available() == 0 && active) {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException intE) {
+                    log.debug("Interrupted");
                     active = false;
                 }
             }
 
             // Пропускаем первые 13 байт с заголовком
+            log.debug("Skipping 13 bytes");
             long skipped = connectionInput.skip(13);
+            log.debug("Skipped ", skipped, " bytes");
             // Считываем остальной ответ сервера
             String buffer;
             try (BufferedReader responseBuffer = new BufferedReader(new InputStreamReader(connectionInput, Charset.forName("UTF-8")))) {
@@ -194,6 +205,7 @@ public class ZabbixSender
         } catch (IOException e) {
             log.error(e, "Connection error");
         }
+        log.debug("Connection closed");
 
         return new JSONObject(responseBuilder.toString());
     }
@@ -206,6 +218,7 @@ public class ZabbixSender
      */
     private boolean checkResponseResult(JSONObject response) {
         // Смотрим, есть ли сообщения об ошибке.
+        log.debug("Checking response");
         String responseResult = response.getString("response");
         if (responseResult.equals("failed")) {
             log.warning(response.get("info"));
@@ -225,7 +238,9 @@ public class ZabbixSender
      */
     private void sendActiveRequest() {
         // Отправляем запрос
+        log.debug("Sending active request");
         JSONObject response = sendDataToZabbix(createActiveChecksRequest());
+        log.debug("Server response: ", response);
         // Просто проверяем успешность передачи, дальше не парсим
         checkResponseResult(response);
     }
@@ -235,13 +250,17 @@ public class ZabbixSender
      */
     private void sendItemsData() {
         // Формируем запрос
+        log.debug("Building JSON-format items data");
         JSONObject request = new JSONObject()
                 .put("request", "agent data")
                 .put("data", queue.getJSONdata())
                 .put("clock", System.currentTimeMillis() / 1000L);
+        log.debug("Request: ", request);
 
         // Отправляем
+        log.debug("Sending data");
         JSONObject response = sendDataToZabbix(buildMessageData(request.toString()));
+        log.debug("Server response: ", response);
 
         // Проверяем, есть ли фатальные ошибки, если нет - выводим результат отправки в лог
         if (checkResponseResult(response))
@@ -262,6 +281,7 @@ public class ZabbixSender
         while (active) {
             // Далее пауза, в ходе которой мы собираем данные
             try {
+                log.debug("Sleeping " + interval * 1000 + " ms.");
                 Thread.sleep(interval * 1000);
             } catch (InterruptedException e) {
                 active = false;
@@ -271,5 +291,7 @@ public class ZabbixSender
                 sendItemsData();
             }
         }
+
+        log.debug("Zabbix sender switched down");
     }
 }
