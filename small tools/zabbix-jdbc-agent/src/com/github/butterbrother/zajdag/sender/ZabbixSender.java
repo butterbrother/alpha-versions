@@ -35,6 +35,8 @@ public class ZabbixSender
     private int interval;
     // Состояние потока, переключалка
     private boolean active = false;
+    // Флаг завершения работ
+    private boolean shuttedDown = true;
 
     // Очередь данных для отправки
     private ItemDataQueue queue;
@@ -275,6 +277,7 @@ public class ZabbixSender
      */
     @Override
     public void run() {
+        shuttedDown = false;
         // Выполняем запрос на активный мониторинг
         sendActiveRequest();
 
@@ -293,5 +296,24 @@ public class ZabbixSender
         }
 
         log.debug("Zabbix sender switched down");
+        shuttedDown = true;
+    }
+
+    /**
+     * Получение статуса отправителя
+     *
+     * @return  Статус отправителя
+     */
+    public boolean isActive() {
+        return active;
+    }
+
+    /**
+     * Получение статуса, что отправитель остановлен
+     *
+     * @return  состояние
+     */
+    public boolean isShuttedDown() {
+        return shuttedDown;
     }
 }
