@@ -1,7 +1,7 @@
 package com.github.butterbrother.ews.redirector;
 
 import com.github.butterbrother.ews.redirector.graphics.SettingsWindow;
-import com.github.butterbrother.ews.redirector.graphics.TrayLoader;
+import com.github.butterbrother.ews.redirector.graphics.TrayControl;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,25 +29,24 @@ public class Loader {
         }
 
         try {
-            TrayLoader trayLoader = new TrayLoader();
-            Settings config = new Settings();
-            trayLoader.addIcon();
-            SettingsWindow win = new SettingsWindow(config);
+            TrayControl trayControl = new TrayControl();
+            Settings config = new Settings(trayControl.getTrayPopup());
+            final SettingsWindow win = new SettingsWindow(config);
 
-            trayLoader.setConfigListener(new MouseAdapter() {
+            trayControl.setConfigListener(new MouseAdapter() {
                 @Override
                 public void mouseReleased(MouseEvent e) {
                     win.showSettingsWin();
                 }
             });
-            trayLoader.setIconDoubleClickListener(new MouseAdapter() {
+            trayControl.setIconDoubleClickListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     if (e.getClickCount() >= 2)
                         win.showSettingsWin();
                 }
             });
-            trayLoader.setCloseListener(new MouseAdapter() {
+            trayControl.setCloseListener(new MouseAdapter() {
                 @Override
                 public void mouseReleased(MouseEvent e) {
                     win.saveWindowPos();

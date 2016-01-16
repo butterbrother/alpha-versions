@@ -11,13 +11,13 @@ import java.net.URL;
  * Осуществляет загрузку иконки в системный трей.
  * Создаёт меню для трея.
  */
-public class TrayLoader {
+public class TrayControl {
     private SystemTray systemTray;
     private TrayIcon icon;
     private JMenuItem exitItem = new JMenuItem("Exit");
     private JMenuItem configItem = new JMenuItem("Settings...");
 
-    public TrayLoader() {
+    public TrayControl() throws AWTException {
         if (!SystemTray.isSupported()) {
             System.out.println("System tray is not supported");
             System.exit(1);
@@ -25,14 +25,6 @@ public class TrayLoader {
         systemTray = SystemTray.getSystemTray();
         icon = new TrayIcon(getTrayImage(), "EWS redirector");
         createTrayPopupMenu();
-    }
-
-    /**
-     * Добавляет иконку в трей с меню
-     *
-     * @throws AWTException
-     */
-    public void addIcon() throws AWTException {
         systemTray.add(icon);
     }
 
@@ -90,7 +82,7 @@ public class TrayLoader {
      * Создаёт контекстное меню трея
      */
     private void createTrayPopupMenu() {
-        JPopupMenu menu = new JPopupMenu();
+        final JPopupMenu menu = new JPopupMenu();
         JMenuItem header = new JMenuItem("EWS redirector");
         header.setEnabled(false);
         menu.add(header);
@@ -109,5 +101,35 @@ public class TrayLoader {
                 }
             }
         });
+    }
+
+    /**
+     * Показывает сообщение из трея. Проброс из специального класса,
+     * что бы не управлять треем напрямую.
+     * @param caption   заголовок
+     * @param text      текст сообщения
+     * @param type      тип сообщения
+     */
+    private void showPopup(String caption, String text, TrayIcon.MessageType type) {
+        icon.displayMessage(caption, text, type);
+    }
+
+    /**
+     * Класс для отображения нотификаций в трее
+     */
+    public class TrayPopup {
+        /**
+         * Показывает сообщение из трея.
+         * @param caption   заголовок сообщения
+         * @param text      текст сообщения
+         * @param type      тип сообщения
+         */
+        public void show(String caption, String text, TrayIcon.MessageType type) {
+            showPopup(caption, text, type);
+        }
+    }
+
+    public TrayPopup getTrayPopup() {
+        return new TrayPopup();
     }
 }

@@ -1,9 +1,11 @@
 package com.github.butterbrother.ews.redirector;
 
+import com.github.butterbrother.ews.redirector.graphics.TextPopup;
+import com.github.butterbrother.ews.redirector.graphics.TrayControl;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.swing.*;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -19,11 +21,13 @@ import java.nio.file.Paths;
 public class Settings {
     private Path settingsFile = Paths.get(System.getProperty("user.home"), ".ews_redirector.json");
     private JSONObject file;
+    private TrayControl.TrayPopup popup;
 
     /**
      * Инициализация и чтение настроек
      */
-    public Settings() {
+    public Settings(TrayControl.TrayPopup popup) {
+        this.popup = popup;
         if (Files.notExists(settingsFile)) {
             file = new JSONObject();
         } else {
@@ -35,7 +39,8 @@ public class Settings {
                 }
                 file = new JSONObject(settingsLoader.toString());
             } catch (JSONException | IOException e) {
-                JOptionPane.showMessageDialog(null, e.getMessage(), "Unable to read settings", JOptionPane.ERROR_MESSAGE);
+                //JOptionPane.showMessageDialog(null, e.getMessage(), "Unable to read settings", JOptionPane.ERROR_MESSAGE);
+                popup.show("Unable to read settings", e.getMessage(), TrayIcon.MessageType.ERROR);
                 file = new JSONObject();
             }
         }
@@ -48,7 +53,8 @@ public class Settings {
         try (BufferedWriter writer = Files.newBufferedWriter(settingsFile, Charset.forName("UTF-8"))) {
             writer.write(file.toString());
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Unable to save settings", JOptionPane.ERROR_MESSAGE);
+            //JOptionPane.showMessageDialog(null, e.getMessage(), "Unable to save settings", JOptionPane.ERROR_MESSAGE);
+            popup.show("Unable to save settings", e.getMessage(), TrayIcon.MessageType.ERROR);
         }
     }
 

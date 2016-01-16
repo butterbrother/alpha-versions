@@ -1,5 +1,6 @@
 package com.github.butterbrother.ews.redirector;
 
+import com.github.butterbrother.ews.redirector.service.RedirectionUrlCallback;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.notification.EventType;
