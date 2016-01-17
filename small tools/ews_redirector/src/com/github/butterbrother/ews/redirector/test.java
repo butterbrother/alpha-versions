@@ -28,11 +28,11 @@ import java.util.List;
 public class test {
     public static void main(String args[]) {
         ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
-        ExchangeCredentials credentials = new WebCredentials("xxxxx", "xxxxxxx", "xxxxx");
+        ExchangeCredentials credentials = new WebCredentials("xxx", "xxx", "xxx");
         service.setCredentials(credentials);
         try {
             System.out.println("Connecting...");
-            service.autodiscoverUrl("user@domain.ru", new RedirectionUrlCallback());
+            service.autodiscoverUrl("xxx@xxx", new RedirectionUrlCallback());
             System.out.println("EWS Url: " + service.getUrl());
 
             // Отображаем все входящие

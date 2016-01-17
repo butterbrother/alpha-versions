@@ -31,7 +31,7 @@ public class Loader {
         try {
             TrayControl trayControl = new TrayControl();
             Settings config = new Settings(trayControl.getTrayPopup());
-            final SettingsWindow win = new SettingsWindow(config);
+            final SettingsWindow win = new SettingsWindow(config, trayControl.getTrayPopup());
 
             trayControl.setConfigListener(new MouseAdapter() {
                 @Override
@@ -49,6 +49,7 @@ public class Loader {
             trayControl.setCloseListener(new MouseAdapter() {
                 @Override
                 public void mouseReleased(MouseEvent e) {
+                    win.stopServiceControl();
                     win.saveWindowPos();
                     System.exit(0);
                 }

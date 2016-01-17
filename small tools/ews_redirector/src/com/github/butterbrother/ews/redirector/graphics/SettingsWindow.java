@@ -1,6 +1,7 @@
 package com.github.butterbrother.ews.redirector.graphics;
 
 import com.github.butterbrother.ews.redirector.Settings;
+import com.github.butterbrother.ews.redirector.service.ServiceController;
 import org.json.JSONException;
 
 import javax.swing.*;
@@ -27,6 +28,8 @@ public class SettingsWindow {
     public static final String PASSWORD = "User password";
     public static final String AUTO_DISCOVER_URL = "Auto discover EWS service URL";
     public static final String AUTO_DISCOVER_ENABLED = "Enable auto discover URL";
+    public static final String DELETE_REDIRECTED = "Enable delete redirected mail";
+    public static final String RECIPIENT_EMAIL = "Recipient e-mail";
     private JPanel switchPanel;
     private JTabbedPane SwitchView;
     private JPanel ConnectionSettings;
@@ -45,21 +48,26 @@ public class SettingsWindow {
     private JButton ApplyButton;
     private JButton StartStopButton;
     private JButton ExitButton;
+    private JLabel RecipientLabel;
+    private JTextField RecipientInput;
+    private JCheckBox DeleteRedirected;
     // Родительское окно
     private JFrame win;
     // Настройки
     private Settings settings;
-    // Статус активности
-    private boolean active;
+    // Сервис
+    private ServiceController controller = null;
+    // Оповещение из трея
+    private TrayControl.TrayPopup popup;
 
-    public SettingsWindow(Settings settings) {
+    public SettingsWindow(final Settings settings, final TrayControl.TrayPopup popup) {
         this.settings = settings;
+        this.popup = popup;
         $$$setupUI$$$();
 
         win = new JFrame("EWS mail redirection");
         win.setContentPane(switchPanel);
         win.pack();
-        active = false;
 
         // Добавляем меню для работы с текстом в поля ввода
         new TextPopup(DomainInput);
@@ -87,16 +95,98 @@ public class SettingsWindow {
             @Override
             public void actionPerformed(ActionEvent e) {
                 saveConnectionSettings();
-                // TODO: добавить переподключение к серверу с новыми настройками
+                if (checkServiceControl())
+                    restartService();
             }
         });
+        // Кнопка выхода
         ExitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                stopServiceControl();
                 saveWindowPos();
                 System.exit(0);
             }
         });
+        // Запуск и останов
+        // При останове элементы управления разблокируются сервисом
+        StartStopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (checkServiceControl()) {
+                    stopServiceControl();
+                } else {
+                    StartStopButton.setEnabled(false);
+                    ApplyButton.setEnabled(false);
+                    createServiceControl();
+                    StartStopButton.setText("Stop");
+                    StartStopButton.setEnabled(true);
+                    ApplyButton.setEnabled(true);
+                }
+            }
+        });
+
+        // Пробуем запустить сервис автоматически
+        if (loadSettings())
+            StartStopButton.doClick();
+    }
+
+    /**
+     * Проверка, что сервис включен и работает.
+     *
+     * @return статус сервиса
+     */
+    private boolean checkServiceControl() {
+        return controller != null && controller.isActive() && !controller.isDone();
+    }
+
+    /**
+     * Создание управляющего сервиса
+     */
+    private void createServiceControl() {
+        controller = new ServiceController(
+                settings.getString(DOMAIN),
+                settings.getString(EMAIL),
+                settings.getString(RECIPIENT_EMAIL),
+                settings.getString(LOGIN),
+                settings.getString(PASSWORD),
+                settings.getString(AUTO_DISCOVER_URL),
+                settings.getBoolean(AUTO_DISCOVER_ENABLED),
+                popup,
+                URLInput,
+                StartStopButton,
+                ApplyButton,
+                settings.getBoolean(DELETE_REDIRECTED)
+        );
+    }
+
+    /**
+     * Остановка управляющего сервиса
+     */
+    public void stopServiceControl() {
+        if (checkServiceControl()) {
+            controller.safeStop();
+            try {
+                while (!controller.isDone())
+                    Thread.sleep(50);
+            } catch (InterruptedException ignore) {
+            }
+        }
+    }
+
+
+    /**
+     * Перезапуск управляющего сервиса
+     */
+    private void restartService() {
+        if (checkServiceControl()) {
+            ApplyButton.setEnabled(false);
+            StartStopButton.setEnabled(false);
+            stopServiceControl();
+            createServiceControl();
+            ApplyButton.setEnabled(true);
+            StartStopButton.setEnabled(true);
+        }
     }
 
     /**
@@ -120,6 +210,8 @@ public class SettingsWindow {
         settings.setString(PASSWORD, new String(PasswordInput.getPassword()));
         settings.setBoolean(AUTO_DISCOVER_ENABLED, AutoDiscover.isSelected());
         settings.setString(AUTO_DISCOVER_URL, URLInput.getText());
+        settings.setString(RECIPIENT_EMAIL, RecipientInput.getText());
+        settings.setBoolean(DELETE_REDIRECTED, DeleteRedirected.isSelected());
         settings.saveSettings();
     }
 
@@ -128,6 +220,15 @@ public class SettingsWindow {
      */
     public void showSettingsWin() {
         win.setVisible(true);
+        loadSettings();
+    }
+
+    /**
+     * Загрузка настроек приложения.
+     *
+     * @return Все настройки успешно загружены
+     */
+    private boolean loadSettings() {
         try {
             win.setLocation(settings.getInteger(KEY_WINDOW_X), settings.getInteger(KEY_WINDOW_Y));
             win.setSize(settings.getInteger(KEY_WINDOW_WIDTH), settings.getInteger(KEY_WINDOW_HEIGHT));
@@ -138,9 +239,13 @@ public class SettingsWindow {
             AutoDiscover.setSelected(settings.getBoolean(AUTO_DISCOVER_ENABLED));
             URLInput.setText(settings.getString(AUTO_DISCOVER_URL));
             URLInput.setEnabled(!AutoDiscover.isSelected());
+            RecipientInput.setText(settings.getString(RECIPIENT_EMAIL));
+            DeleteRedirected.setSelected(settings.getBoolean(DELETE_REDIRECTED));
         } catch (JSONException ignore) {
             ignore.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     /**
@@ -249,6 +354,29 @@ public class SettingsWindow {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         CSInputPanel.add(URLInput, gbc);
+        RecipientLabel = new JLabel();
+        RecipientLabel.setHorizontalAlignment(4);
+        RecipientLabel.setHorizontalTextPosition(4);
+        RecipientLabel.setText("Recipient:");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.WEST;
+        CSInputPanel.add(RecipientLabel, gbc);
+        RecipientInput = new JTextField();
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        CSInputPanel.add(RecipientInput, gbc);
+        DeleteRedirected = new JCheckBox();
+        DeleteRedirected.setText("Delete redirected e-mails");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 7;
+        gbc.anchor = GridBagConstraints.WEST;
+        CSInputPanel.add(DeleteRedirected, gbc);
         final JPanel spacer1 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 1;

@@ -124,8 +124,18 @@ public class TrayControl {
          * @param text      текст сообщения
          * @param type      тип сообщения
          */
+        @Deprecated
         public void show(String caption, String text, TrayIcon.MessageType type) {
             showPopup(caption, text, type);
+        }
+
+        /**
+         * Показывает ошибку из трея
+         * @param caption   заголовок сообщения
+         * @param text      текст сообщения
+         */
+        public void error(String caption, String text) {
+            showPopup(caption, text, TrayIcon.MessageType.ERROR);
         }
     }
 
