@@ -39,8 +39,7 @@ public class Settings {
                 }
                 file = new JSONObject(settingsLoader.toString());
             } catch (JSONException | IOException e) {
-                //JOptionPane.showMessageDialog(null, e.getMessage(), "Unable to read settings", JOptionPane.ERROR_MESSAGE);
-                popup.show("Unable to read settings", e.getMessage(), TrayIcon.MessageType.ERROR);
+                popup.error("Unable to read settings", e.getMessage());
                 file = new JSONObject();
             }
         }
@@ -53,8 +52,7 @@ public class Settings {
         try (BufferedWriter writer = Files.newBufferedWriter(settingsFile, Charset.forName("UTF-8"))) {
             writer.write(file.toString());
         } catch (IOException e) {
-            //JOptionPane.showMessageDialog(null, e.getMessage(), "Unable to save settings", JOptionPane.ERROR_MESSAGE);
-            popup.show("Unable to save settings", e.getMessage(), TrayIcon.MessageType.ERROR);
+            popup.error("Unable to save settings", e.getMessage());
         }
     }
 

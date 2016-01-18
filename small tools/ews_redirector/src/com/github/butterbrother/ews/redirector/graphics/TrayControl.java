@@ -1,10 +1,10 @@
 package com.github.butterbrother.ews.redirector.graphics;
 
 import javax.swing.*;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.net.URL;
 
 /**
@@ -112,23 +112,13 @@ public class TrayControl {
      */
     private void showPopup(String caption, String text, TrayIcon.MessageType type) {
         icon.displayMessage(caption, text, type);
+        System.out.println("DEBUG: Tray control, show popup: [" + caption + "] " + text);
     }
 
     /**
      * Класс для отображения нотификаций в трее
      */
     public class TrayPopup {
-        /**
-         * Показывает сообщение из трея.
-         * @param caption   заголовок сообщения
-         * @param text      текст сообщения
-         * @param type      тип сообщения
-         */
-        @Deprecated
-        public void show(String caption, String text, TrayIcon.MessageType type) {
-            showPopup(caption, text, type);
-        }
-
         /**
          * Показывает ошибку из трея
          * @param caption   заголовок сообщения

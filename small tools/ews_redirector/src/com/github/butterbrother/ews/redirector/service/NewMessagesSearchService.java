@@ -6,7 +6,6 @@ import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFo
 import microsoft.exchange.webservices.data.core.enumeration.search.LogicalOperator;
 import microsoft.exchange.webservices.data.core.enumeration.search.SortDirection;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceLocalException;
-import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.core.service.item.Item;
 import microsoft.exchange.webservices.data.core.service.schema.EmailMessageSchema;
 import microsoft.exchange.webservices.data.core.service.schema.ItemSchema;
@@ -25,11 +24,11 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class NewMessagesSearchService extends SafeStopService {
     private ExchangeService service;
     private TrayControl.TrayPopup popup;
-    private ConcurrentSkipListSet<EmailMessage> messages;
+    private ConcurrentSkipListSet<MessageElement> messages;
 
     public NewMessagesSearchService(ExchangeService service,
                                     TrayControl.TrayPopup popup,
-                                    ConcurrentSkipListSet<EmailMessage> messages
+                                    ConcurrentSkipListSet<MessageElement> messages
                                     ) {
         super();
         this.service = service;
@@ -56,9 +55,8 @@ public class NewMessagesSearchService extends SafeStopService {
                     for (Item item : results.getItems()) {
                         if (!super.isActive()) break;
                         if (item.getSchema().equals(EmailMessageSchema.Instance)) {
-                            EmailMessage message = EmailMessage.bind(service, item.getId());
-                            messages.add(message);
-                            System.out.println("Add one new message");
+                            messages.add(new MessageElement(item.getId()));
+                            System.out.println("DEBUG: new mail watch: Add one new message");
                         }
                     }
                 } catch (Exception msgWorkExc) {

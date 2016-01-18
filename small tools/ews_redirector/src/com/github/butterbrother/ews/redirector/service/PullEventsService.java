@@ -4,7 +4,6 @@ import com.github.butterbrother.ews.redirector.graphics.TrayControl;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.notification.EventType;
 import microsoft.exchange.webservices.data.core.enumeration.property.WellKnownFolderName;
-import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.notification.GetEventsResults;
 import microsoft.exchange.webservices.data.notification.ItemEvent;
 import microsoft.exchange.webservices.data.notification.PullSubscription;
@@ -25,7 +24,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class PullEventsService extends SafeStopService {
     private ExchangeService service;
     private TrayControl.TrayPopup popup;
-    private ConcurrentSkipListSet<EmailMessage> messages;
+    private ConcurrentSkipListSet<MessageElement> messages;
 
     /**
      * Инициализация
@@ -34,7 +33,7 @@ public class PullEventsService extends SafeStopService {
      * @param popup     трей для передачи аварийных сообщений
      */
     public PullEventsService(ExchangeService service,
-                             ConcurrentSkipListSet<EmailMessage> messages,
+                             ConcurrentSkipListSet<MessageElement> messages,
                              TrayControl.TrayPopup popup) {
         super();
         this.service = service;
@@ -49,15 +48,10 @@ public class PullEventsService extends SafeStopService {
         folders.add(new FolderId(WellKnownFolderName.Inbox));
         GetEventsResults eventsResults;
 
-        long extIteration = 0;
-        long intIteration = 0;
         while (super.isActive()) {
-            ++extIteration;
             try {
                 PullSubscription ps = service.subscribeToPullNotifications(folders, 5, null, EventType.NewMail);
-                intIteration = 0;
                 while (super.isActive()) {
-                    ++intIteration;
                     try {
                         Thread.sleep(200);
                     } catch (InterruptedException ie) {
@@ -66,7 +60,8 @@ public class PullEventsService extends SafeStopService {
                     eventsResults = ps.getEvents();
                     for (ItemEvent event : eventsResults.getItemEvents()) {
                         if (! super.isActive()) break;
-                        messages.add(EmailMessage.bind(service, event.getItemId()));
+                        System.out.println("DEBUG: notify reader module: Add one new message");
+                        messages.add(new MessageElement(event.getItemId()));
                     }
                 }
             } catch (Exception e) {

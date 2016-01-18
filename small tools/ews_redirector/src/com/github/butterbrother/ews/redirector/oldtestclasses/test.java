@@ -1,4 +1,4 @@
-package com.github.butterbrother.ews.redirector;
+package com.github.butterbrother.ews.redirector.oldtestclasses;
 
 import com.github.butterbrother.ews.redirector.service.RedirectionUrlCallback;
 import microsoft.exchange.webservices.data.core.ExchangeService;

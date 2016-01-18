@@ -1,4 +1,4 @@
-package com.github.butterbrother.ews.redirector;
+package com.github.butterbrother.ews.redirector.oldtestclasses;
 
 import java.awt.*;
 

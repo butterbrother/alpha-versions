@@ -1,20 +1,15 @@
 package com.github.butterbrother.ews.redirector.service;
 
 import com.github.butterbrother.ews.redirector.graphics.TrayControl;
-import microsoft.exchange.webservices.data.core.ExchangeService;
-import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
-import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
-import microsoft.exchange.webservices.data.credential.WebCredentials;
 
 import javax.swing.*;
-import java.net.URI;
 
 /**
  * Непосредственно управляет потоками-обработчиками.
  * Устанавливает соединение с EWS
  */
 public class ServiceController extends SafeStopService {
-    private ExchangeService service = null;
+    private ExchangeConnector connector = null;
     private PullEventsService pullEvents = null;
     private NewMessagesSearchService newMessages = null;
     private SendService send = null;
@@ -46,26 +41,12 @@ public class ServiceController extends SafeStopService {
         this.popup = popup;
 
         try {
-            // TODO: переделать. ExchangeService однопоточный и однопроцессный (в одном окне). Для каждого сервиса - свой service и рассылка
-            // + синхронизация по id, что бы одновременно не обрабатывали один и тот же объект
-            service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
-            ExchangeCredentials credentials;
-            if (domain.isEmpty()) {
-                credentials = new WebCredentials(login, password);
-            } else {
-                credentials = new WebCredentials(login, password, domain);
-            }
-            service.setCredentials(credentials);
-            if (enableAuto) {
-                service.autodiscoverUrl(email, new RedirectionUrlCallback());
-                urlField.setText(service.getUrl().toString());
-            } else {
-                service.setUrl(new URI(url));
-            }
-
+            connector = new ExchangeConnector(domain, login, password, email, url, enableAuto);
+            urlField.setText(connector.getCurrentUrl());
             new Thread(this).start();
         } catch (Exception startException) {
             popup.error("Connection error", startException.getMessage());
+            super.wellDone();
             safeStop();
         }
     }
@@ -75,10 +56,15 @@ public class ServiceController extends SafeStopService {
      */
     @Override
     public void run() {
-        if (service != null) {
-            send = new SendService(deleteRedirected, recipient, popup);
-            //pullEvents = new PullEventsService(service, send.getQueue(), popup);
-            newMessages = new NewMessagesSearchService(service, popup, send.getQueue());
+        if (connector != null) {
+            try {
+                send = new SendService(connector.createService(), deleteRedirected, recipient, popup);
+                pullEvents = new PullEventsService(connector.createService(), send.getQueue(), popup);
+                newMessages = new NewMessagesSearchService(connector.createService(), popup, send.getQueue());
+            } catch (Exception e) {
+                popup.error("Connection error", e.getMessage());
+                super.safeStop();
+            }
         }
 
         while (super.isActive()) {
