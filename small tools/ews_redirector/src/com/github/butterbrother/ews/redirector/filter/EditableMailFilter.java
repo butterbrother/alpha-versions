@@ -1,7 +1,5 @@
 package com.github.butterbrother.ews.redirector.filter;
 
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -96,5 +94,21 @@ public class EditableMailFilter {
      */
     public void rename(String name) {
         this.name = name;
+    }
+
+    /**
+     * Возвращает массив из массива строк.
+     * Для заполнения таблицы AWT с правилами.
+     * Вызывается один раз, при инициализации окна редактирования правил.
+     *
+     * @return  Все правила фильтра
+     */
+    public String[][] getAllRulesTable() {
+        String[][] allRules = new String[rules.size()][];
+        for (Map.Entry<Integer, FilterRule> rule : rules.entrySet()) {
+            allRules[rule.getKey()] = rule.getValue().getRuleView();
+        }
+
+        return allRules;
     }
 }
