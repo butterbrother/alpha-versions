@@ -6,7 +6,10 @@ import java.util.TreeMap;
 /**
  * Редактируемый фильтр для сообщений.
  * Состоит из одного или нескольких правил.
+ * @deprecated Излишний. В итоге все правила редактируются текстом в таблице с
+ * выпадающими списками.
  */
+@Deprecated
 public class EditableMailFilter {
 
     private Map<Integer, FilterRule> rules = new TreeMap<>();

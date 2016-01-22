@@ -43,7 +43,7 @@ public class ServiceController extends SafeStopService {
         try {
             connector = new ExchangeConnector(domain, login, password, email, url, enableAuto);
             urlField.setText(connector.getCurrentUrl());
-            new Thread(this).start();
+            super.runService();
         } catch (Exception startException) {
             popup.error("Connection error", startException.getMessage());
             super.wellDone();

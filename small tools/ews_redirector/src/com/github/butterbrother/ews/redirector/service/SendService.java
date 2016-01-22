@@ -38,7 +38,7 @@ public class SendService extends SafeStopService {
         this.recipientEmail = new EmailAddress(recipientEmail);
         this.popup = popup;
 
-        new Thread(this).start();
+        super.runService();
     }
 
     /**

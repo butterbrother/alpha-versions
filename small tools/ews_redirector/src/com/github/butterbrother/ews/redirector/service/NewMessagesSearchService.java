@@ -35,7 +35,7 @@ public class NewMessagesSearchService extends SafeStopService {
         this.popup = popup;
         this.messages = messages;
 
-        new Thread(this).start();
+        super.runService();
     }
 
     @Override

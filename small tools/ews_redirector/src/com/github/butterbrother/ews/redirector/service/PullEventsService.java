@@ -40,7 +40,7 @@ public class PullEventsService extends SafeStopService {
         this.messages = messages;
         this.popup = popup;
 
-        new Thread(this).start();
+        super.runService();
     }
 
     public void run() {
