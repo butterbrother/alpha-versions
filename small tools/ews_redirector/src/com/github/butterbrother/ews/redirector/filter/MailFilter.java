@@ -5,33 +5,95 @@ import microsoft.exchange.webservices.data.core.service.item.EmailMessage;
 import microsoft.exchange.webservices.data.property.complex.EmailAddress;
 import microsoft.exchange.webservices.data.property.complex.EmailAddressCollection;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Рабочий статичный фильтр для проверки и фильтрации
- * сообщений. Конвертируется из редактируемого фильтра
+ * Рабочий фильтр для проверки и фильтрации
+ * сообщений.
  */
 public class MailFilter {
     public static final int OPERATOR_AND = 0;
     public static final int OPERATOR_OR = 1;
     public static final String[] Operators = { "And", "Or" };
 
+    private String name;
     private int operator;
     private FilterRule[] rules;
 
-    protected MailFilter(FilterRule[] rules, int operator) {
+    /**
+     * Инициализация данными из таблицы правил.
+     * Правило с пустым значением исключается из набора
+     *
+     * @param name          Имя фильтра
+     * @param rawRules         Правила из редактора фильтра:
+     *                      - тип из {@link FilterRule#RuleTypes}
+     *                      - оператор из {@link FilterRule#RuleOperators}
+     *                      - значение. Правило с пустым значением игнорируется
+     *                      и удаляется из фильтра
+     * @param operator      Логический оператор для правил из {@link #Operators}
+     */
+    public MailFilter(String name, String[][]rawRules, int operator) {
+        this.name = name.trim().isEmpty() ? "New filter" : name.trim();
+        List<FilterRule> result = new ArrayList<>();
+
+        for (String[] rawRule : rawRules) {
+            if (rawRule[2].trim().isEmpty()) continue;
+            try {
+                result.add(new FilterRule(rawRule));
+            } catch (ArrayIndexOutOfBoundsException ignore) {
+                System.out.print("DEBUG: rule dropped:");
+                for (String i : rawRule) {
+                    System.out.print("[" + i + "]");
+                }
+                System.out.println(ignore.getMessage());
+            }
+        }
+
         this.operator = operator;
-        this.rules = rules;
+        rules = new FilterRule[result.size()];
+        result.toArray(rules);
     }
 
     /**
-     * Преобразует редактируемый фильтр в статичный
-     * @param editable  редактируемый фильтр
-     * @return          статичный фильтр
+     * Инициализация нового пустого фильтра
      */
-    public static MailFilter convert(EditableMailFilter editable) {
-        FilterRule[] rules = new FilterRule[editable.getRules().size()];
-        editable.getRules().values().toArray(rules);
+    public MailFilter() {
+        name = "New filter";
+        operator = OPERATOR_AND;
+        rules = new FilterRule[0];
+    }
 
-        return new MailFilter(rules, editable.getOperator());
+    /**
+     * Возвращает имя фильтра
+     *
+     * @return  Имя
+     */
+    public String toString() {
+        return name;
+    }
+
+    /**
+     * Возвращает оператор применения правил
+     * @return  Логический оператор. Индекс согласно {@link #Operators}
+     */
+    public int getOperator() {
+        return operator;
+    }
+
+    /**
+     * Получение табличного представления для всех правил в фильтре
+     *
+     * @return  Представление для таблицы размером Nx3
+     */
+    public String[][] getRawRules() {
+        String[][] rawRules = new String[rules.length][3];
+        int i = 0;
+        for (FilterRule rule : rules) {
+            rawRules[i] = rule.getRuleView();
+        }
+
+        return rawRules;
     }
 
     /**

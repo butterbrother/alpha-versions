@@ -73,7 +73,11 @@ public class SendService extends SafeStopService {
                             else
                                 emailMessage.setIsRead(true);
                         } catch (Exception forwardError) {
-                            popup.error("Email forwarding error", forwardError.getMessage());
+                            if (forwardError.getMessage().equals("The specified object was not found in the store.")) {
+                                // Ошибка появляется, если объект уже отправлен
+                                System.out.println("DEBUG: " + forwardError.getMessage() + ": " + forwardError.getCause().getMessage());
+                            } else
+                                popup.error("Email forwarding error", forwardError.getMessage());
                         }
                     }
                 } catch (Exception e) {

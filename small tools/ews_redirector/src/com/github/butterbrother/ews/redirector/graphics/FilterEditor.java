@@ -1,18 +1,14 @@
 package com.github.butterbrother.ews.redirector.graphics;
 
-import com.github.butterbrother.ews.redirector.filter.EditableMailFilter;
 import com.github.butterbrother.ews.redirector.filter.FilterRule;
 import com.github.butterbrother.ews.redirector.filter.MailFilter;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 /**
  * Управление правилом фильтрации
@@ -36,25 +32,19 @@ public class FilterEditor {
     private JButton CancelFilterButton;
     private JTable RulesTable;
     private DefaultTableModel RulesTableModel;
+    private JFrame frame;
 
     /**
-     * Редактирование существующего фильтра
-     *
-     * @param filter Редактируемый фильтр
+     * Создание окна редактирования фильтров
      */
-    protected FilterEditor(EditableMailFilter filter) {
+    protected FilterEditor(int posX, int posY, int winH, int winW) {
         $$$setupUI$$$();
 
-        JFrame frame = new JFrame("Filter editor");
+        frame = new JFrame("Filter editor");
         frame.setContentPane(this.FilterEditorForm);
         frame.pack();
-        frame.setVisible(true);
-
-        FilterNameInput.setText(filter.getName());
-        new TextPopup(FilterNameInput);
-
-        for (String[] rule : filter.getAllRulesTable())
-            RulesTableModel.addRow(rule);
+        frame.setSize(winW, winH);
+        frame.setLocation(posX, posY);
 
         AddRuleButton.addActionListener(new ActionListener() {
             @Override
@@ -75,43 +65,65 @@ public class FilterEditor {
             public void actionPerformed(ActionEvent e) {
                 int result = JOptionPane.showConfirmDialog(null, "This action drop all rules in filter. Continue?", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
                 if (result == JOptionPane.OK_OPTION) {
-                    buldTableModel();
-                    RulesTable.setModel(RulesTableModel);
-                    setCellEditors();
+                    dropRulesTable();
                 }
             }
         });
     }
 
     /**
-     * Создание нового фильтра
+     * Опустошает таблицу правил фильтрации
      */
-    protected FilterEditor() {
-        this(new EditableMailFilter());
-
-
+    private void dropRulesTable() {
+        buildTableModel();
+        RulesTable.setModel(RulesTableModel);
+        setCellEditors();
     }
 
-    /*
-    TODO: здесь должен вызов создания и редактирования фильтра
-    public static EditableMailFilter createNewFilter() {
-
+    /**
+     * Возвращает размер окна редактирования фильтров
+     *
+     * @return  размер окна
+     */
+    public Dimension getSize() {
+        return frame.getSize();
     }
 
-    public static EditableMailFilter editFilter(EditableMailFilter) {
-
+    /**
+     * Возвращает позицию окна редактирования фильтров
+     * @return  позиция окна
+     */
+    public Point getLocation() {
+        return frame.getLocation();
     }
-    */
+
+    /**
+     * Отобразить окно редактирования фильтра с выбранным фильтром.
+     *
+     * @param filter почтовый фильтр
+     */
+    public void editFilter(MailFilter filter) {
+        FilterNameInput.setText(filter.toString());
+        new TextPopup(FilterNameInput);
+
+        dropRulesTable();
+        for (String[] rule : filter.getRawRules())
+            RulesTableModel.addRow(rule);
+
+        RuleOperatorList.setSelectedIndex(filter.getOperator());
+        frame.setVisible(true);
+    }
+
 
     // Для тестового запуска и пробы
     public static void main(String[] args) {
-        new FilterEditor();
+        new FilterEditor(1, 1, 480, 640).editFilter(new MailFilter());
     }
 
     private void createUIComponents() {
         RuleOperatorList = new JComboBox<>(MailFilter.Operators);
 
-        buldTableModel();
+        buildTableModel();
         RulesTable = new JTable(RulesTableModel);
         setCellEditors();
     }
@@ -119,7 +131,7 @@ public class FilterEditor {
     /**
      * Создаёт модель для таблицы
      */
-    private void buldTableModel() {
+    private void buildTableModel() {
         RulesTableModel = new DefaultTableModel();
         RulesTableModel.setColumnCount(3);
         RulesTableModel.setColumnIdentifiers(new String[]{"Type", "Operator", "Value"});
@@ -131,9 +143,11 @@ public class FilterEditor {
     private void setCellEditors() {
         TableColumn type = RulesTable.getColumnModel().getColumn(0);
         type.setCellEditor(new DefaultCellEditor(new JComboBox<>(FilterRule.RuleTypes)));
+        type.setWidth(type.getWidth() / 2);
 
         TableColumn operator = RulesTable.getColumnModel().getColumn(1);
         operator.setCellEditor(new DefaultCellEditor(new JComboBox<>(FilterRule.RuleOperators)));
+        operator.setWidth(type.getWidth() / 2);
 
         TableColumn value = RulesTable.getColumnModel().getColumn(2);
         JTextField fieldWithPopup = new JTextField();
@@ -143,7 +157,7 @@ public class FilterEditor {
         value.setCellEditor(singleClick);
 
         RulesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        RulesTable.setRowHeight(RulesTable.getRowHeight() * 2);
+        RulesTable.setRowHeight((int) (RulesTable.getRowHeight() * 1.2));
     }
 
     /**

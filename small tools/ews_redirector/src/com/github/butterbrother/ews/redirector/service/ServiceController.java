@@ -61,19 +61,25 @@ public class ServiceController extends SafeStopService {
                 send = new SendService(connector.createService(), deleteRedirected, recipient, popup);
                 pullEvents = new PullEventsService(connector.createService(), send.getQueue(), popup);
                 newMessages = new NewMessagesSearchService(connector.createService(), popup, send.getQueue());
+
+                while (super.isActive()) {
+                    try {
+                        Thread.sleep(200);
+                        if (send.isDone() || pullEvents.isDone() || newMessages.isDone())
+                            if (super.isActive())
+                                safeStop();
+                    } catch (InterruptedException ie) {
+                        if (super.isActive())
+                            safeStop();
+                    }
+                }
             } catch (Exception e) {
                 popup.error("Connection error", e.getMessage());
-                super.safeStop();
+                if (super.isActive())
+                    safeStop();
             }
         }
 
-        while (super.isActive()) {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException ie) {
-                safeStop();
-            }
-        }
         super.wellDone();
     }
 

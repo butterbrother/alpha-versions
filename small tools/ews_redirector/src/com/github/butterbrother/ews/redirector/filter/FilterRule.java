@@ -40,14 +40,26 @@ public class FilterRule {
 
     /**
      * Инициализация правила
-     * @param type      Тип правила
-     * @param operator  Оператор сравнения
-     * @param value     Значение правила
+     * @param rawRule   Строковое правило из таблицы
      */
-    public FilterRule(int type, int operator, String value) {
-        ruleType = type;
-        ruleOperator = operator;
-        ruleValue = value.toLowerCase();
+    public FilterRule(String[] rawRule) {
+        ruleType = -1;
+        ruleOperator = -1;
+        for (int i = 0; i < RuleTypes.length; ++i) {
+            if (rawRule[0].equals(RuleTypes[i])) {
+                ruleType = i;
+                break;
+            }
+        }
+        for (int i = 0; i < RuleOperators.length; ++i) {
+            if (rawRule[1].equals(RuleOperators[i])) {
+                ruleOperator = i;
+                break;
+            }
+        }
+        ruleValue = rawRule[2].trim();
+        if (ruleType < 0 || ruleOperator < 0)
+            throw new ArrayIndexOutOfBoundsException();
     }
 
     /**
@@ -80,17 +92,9 @@ public class FilterRule {
 
     /**
      * Получить тип правила
-     * @return
+     * @return  возвращает тип правила
      */
     public int getType() {
         return ruleType;
-    }
-
-    /**
-     * Получить оператор сравнения правила
-     * @return
-     */
-    public int getOperator() {
-        return ruleOperator;
     }
 }

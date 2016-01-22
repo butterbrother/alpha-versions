@@ -12,7 +12,7 @@ public abstract class SafeStopService
     /**
      * Прекращает активность сервиса
      */
-    public void safeStop() {
+    public synchronized void safeStop() {
         active = false;
         if (currentThread != null)
             currentThread.interrupt();
@@ -22,7 +22,7 @@ public abstract class SafeStopService
      * Проверка активности сервиса
      * @return  текущий статус
      */
-    public boolean isActive() {
+    public synchronized boolean isActive() {
         return active;
     }
 
@@ -30,7 +30,7 @@ public abstract class SafeStopService
      * Проверка завершения работы сервиса
      * @return  текущий статус
      */
-    public boolean isDone() {
+    public synchronized boolean isDone() {
         return done;
     }
 
