@@ -9,6 +9,8 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * Управление правилом фильтрации
@@ -33,11 +35,13 @@ public class FilterEditor {
     private JTable RulesTable;
     private DefaultTableModel RulesTableModel;
     private JFrame frame;
+    private final SettingsWindow owner;
+    private int rowHeight = 0;
 
     /**
      * Создание окна редактирования фильтров
      */
-    protected FilterEditor(int posX, int posY, int winH, int winW) {
+    protected FilterEditor(final SettingsWindow owner, int posX, int posY, int winH, int winW) {
         $$$setupUI$$$();
 
         frame = new JFrame("Filter editor");
@@ -45,6 +49,7 @@ public class FilterEditor {
         frame.pack();
         frame.setSize(winW, winH);
         frame.setLocation(posX, posY);
+        frame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
         AddRuleButton.addActionListener(new ActionListener() {
             @Override
@@ -69,7 +74,62 @@ public class FilterEditor {
                 }
             }
         });
+
+        this.owner = owner;
+
+        // Сохранение фильтра
+        SaveFilterButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (RulesTable.isEditing())
+                    RulesTable.getCellEditor().stopCellEditing();
+                String rawRules[][] = new String[RulesTableModel.getRowCount()][RulesTableModel.getColumnCount()];
+                System.out.println("DEBUG: filter table data:");
+                for (int row = 0; row < RulesTableModel.getRowCount(); ++row) {
+                    for (int column = 0; column < RulesTableModel.getColumnCount(); ++column)
+                        try {
+                            rawRules[row][column] = RulesTableModel.getValueAt(row, column).toString();
+                            System.out.print("[" + rawRules[row][column] + "]");
+                        } catch (NullPointerException noData) {
+                            rawRules[row][column] = "";
+                            System.out.print("[null]");
+                        }
+                    System.out.println();
+                }
+
+                owner.doneFilterEditing(
+                        new MailFilter(
+                                FilterNameInput.getText().trim(),
+                                rawRules,
+                                RuleOperatorList.getSelectedIndex()
+                        )
+                );
+                frame.setVisible(false);
+            }
+        });
+        // Кнопка отмены. Аналогично закрытию окна
+        CancelFilterButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cancelEditing();
+            }
+        });
+        // Кнопка закрытия окна. Считается, что не внести изменения
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                cancelEditing();
+            }
+        });
+
+        new TextPopup(FilterNameInput);
     }
+
+    private void cancelEditing() {
+        frame.setVisible(false);
+        owner.doneFilterEditing(null);
+    }
+
 
     /**
      * Опустошает таблицу правил фильтрации
@@ -83,7 +143,7 @@ public class FilterEditor {
     /**
      * Возвращает размер окна редактирования фильтров
      *
-     * @return  размер окна
+     * @return размер окна
      */
     public Dimension getSize() {
         return frame.getSize();
@@ -91,7 +151,8 @@ public class FilterEditor {
 
     /**
      * Возвращает позицию окна редактирования фильтров
-     * @return  позиция окна
+     *
+     * @return позиция окна
      */
     public Point getLocation() {
         return frame.getLocation();
@@ -104,7 +165,6 @@ public class FilterEditor {
      */
     public void editFilter(MailFilter filter) {
         FilterNameInput.setText(filter.toString());
-        new TextPopup(FilterNameInput);
 
         dropRulesTable();
         for (String[] rule : filter.getRawRules())
@@ -112,12 +172,6 @@ public class FilterEditor {
 
         RuleOperatorList.setSelectedIndex(filter.getOperator());
         frame.setVisible(true);
-    }
-
-
-    // Для тестового запуска и пробы
-    public static void main(String[] args) {
-        new FilterEditor(1, 1, 480, 640).editFilter(new MailFilter());
     }
 
     private void createUIComponents() {
@@ -157,7 +211,10 @@ public class FilterEditor {
         value.setCellEditor(singleClick);
 
         RulesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        RulesTable.setRowHeight((int) (RulesTable.getRowHeight() * 1.2));
+        if (rowHeight == 0) {
+            rowHeight = (int) (RulesTable.getRowHeight() * 1.2);
+        }
+        RulesTable.setRowHeight(rowHeight);
     }
 
     /**

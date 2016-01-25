@@ -233,7 +233,7 @@
                     </properties>
                     <border type="none"/>
                     <children>
-                      <component id="ce33f" class="javax.swing.JList" binding="RulesList">
+                      <component id="ce33f" class="javax.swing.JList" binding="RulesList" custom-create="true">
                         <constraints/>
                         <properties/>
                       </component>

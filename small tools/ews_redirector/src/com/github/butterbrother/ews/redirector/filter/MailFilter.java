@@ -16,6 +16,10 @@ public class MailFilter {
     public static final int OPERATOR_AND = 0;
     public static final int OPERATOR_OR = 1;
     public static final String[] Operators = { "And", "Or" };
+    // Имена параметров, хранящихся в файле настроек
+    public static final String FILTER_NAME = "name";
+    public static final String FILTER_OPERATOR = "operator";
+    public static final String FILTER_RULES = "rules";
 
     private String name;
     private int operator;
@@ -51,6 +55,8 @@ public class MailFilter {
         }
 
         this.operator = operator;
+
+
         rules = new FilterRule[result.size()];
         result.toArray(rules);
     }
@@ -90,7 +96,7 @@ public class MailFilter {
         String[][] rawRules = new String[rules.length][3];
         int i = 0;
         for (FilterRule rule : rules) {
-            rawRules[i] = rule.getRuleView();
+            rawRules[i++] = rule.getRuleView();
         }
 
         return rawRules;

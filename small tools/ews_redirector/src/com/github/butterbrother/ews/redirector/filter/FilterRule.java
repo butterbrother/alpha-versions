@@ -34,6 +34,11 @@ public class FilterRule {
             "not contains"
     };
 
+    // Имена параметров, хранящихся в файле настроек
+    public static final String RULE_TYPE = "type";
+    public static final String RULE_OPERATOR = "operator";
+    public static final String RULE_VALUE = "value";
+
     private int ruleType;
     private int ruleOperator;
     private String ruleValue;
@@ -43,21 +48,28 @@ public class FilterRule {
      * @param rawRule   Строковое правило из таблицы
      */
     public FilterRule(String[] rawRule) {
+        System.out.print("DEBUG: creating rule. Data in array: ");
+        for (String item : rawRule) System.out.print("[" + item + "]");
+        System.out.println();
+
         ruleType = -1;
         ruleOperator = -1;
         for (int i = 0; i < RuleTypes.length; ++i) {
             if (rawRule[0].equals(RuleTypes[i])) {
                 ruleType = i;
+                System.out.println("DEBUG: rule type is " + RuleTypes[ruleType]);
                 break;
             }
         }
         for (int i = 0; i < RuleOperators.length; ++i) {
             if (rawRule[1].equals(RuleOperators[i])) {
                 ruleOperator = i;
+                System.out.println("DEBUG: rule operator is " + RuleOperators[ruleOperator]);
                 break;
             }
         }
-        ruleValue = rawRule[2].trim();
+        ruleValue = rawRule[2].trim().toLowerCase();
+        System.out.println("DEBUG: rule value is " + ruleValue);
         if (ruleType < 0 || ruleOperator < 0)
             throw new ArrayIndexOutOfBoundsException();
     }

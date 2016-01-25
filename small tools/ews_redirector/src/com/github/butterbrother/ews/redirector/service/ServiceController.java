@@ -1,5 +1,6 @@
 package com.github.butterbrother.ews.redirector.service;
 
+import com.github.butterbrother.ews.redirector.filter.MailFilter;
 import com.github.butterbrother.ews.redirector.graphics.TrayControl;
 
 import javax.swing.*;
@@ -19,6 +20,7 @@ public class ServiceController extends SafeStopService {
     private String recipient;
     private boolean deleteRedirected;
     private TrayControl.TrayPopup popup;
+    private MailFilter[] filters;
 
     public ServiceController(
             String domain,
@@ -32,13 +34,15 @@ public class ServiceController extends SafeStopService {
             JTextField urlField,
             JButton startStopButton,
             JButton applyButton,
-            boolean deleteRedirected
+            boolean deleteRedirected,
+            MailFilter[] filters
     ) {
         this.startStopButton = startStopButton;
         this.applyButton = applyButton;
         this.recipient = recipient;
         this.deleteRedirected = deleteRedirected;
         this.popup = popup;
+        this.filters = filters;
 
         try {
             connector = new ExchangeConnector(domain, login, password, email, url, enableAuto);
@@ -58,10 +62,11 @@ public class ServiceController extends SafeStopService {
     public void run() {
         if (connector != null) {
             try {
-                send = new SendService(connector.createService(), deleteRedirected, recipient, popup);
+                send = new SendService(connector.createService(), deleteRedirected, recipient, popup, filters);
                 pullEvents = new PullEventsService(connector.createService(), send.getQueue(), popup);
                 newMessages = new NewMessagesSearchService(connector.createService(), popup, send.getQueue());
 
+                startStopButton.setText("Stop");
                 while (super.isActive()) {
                     try {
                         Thread.sleep(200);
