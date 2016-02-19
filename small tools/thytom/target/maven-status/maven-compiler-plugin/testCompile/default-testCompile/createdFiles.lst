@@ -1,0 +1,7 @@
+com\github\butterbrother\thytom\JarLoaderTest.class
+com\github\butterbrother\thytom\SQLFilesLoaderTest.class
+com\github\butterbrother\thytom\CLIParserTest.class
+com\github\butterbrother\thytom\ResultSaverTest.class
+com\github\butterbrother\thytom\QueriesExecutorTest.class
+com\github\butterbrother\thytom\SubsFileLoaderTest.class
+com\github\butterbrother\thytom\ConfigFileLoaderTest.class

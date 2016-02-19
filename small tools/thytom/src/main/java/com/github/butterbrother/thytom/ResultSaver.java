@@ -67,7 +67,7 @@ public class ResultSaver {
         Path resultsPath;
         try {
             Path rootPath = Paths.get(ResultSaver.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            resultsPath = Paths.get(rootPath.toString(), "out");
+            resultsPath = Paths.get(rootPath.getParent().toString(), "out");
         } catch (URISyntaxException ignore) {
             resultsPath = Paths.get("./out/");
         }

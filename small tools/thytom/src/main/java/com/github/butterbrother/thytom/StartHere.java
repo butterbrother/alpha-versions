@@ -180,8 +180,13 @@ public class StartHere {
                                ConfigFile config,
                                SQLFile[] sqlFiles,
                                SubsFileLoader subs) {
+        System.err.println("Connecting to " + config.getUrl());
         try (QueriesExecutor executor = new QueriesExecutor(cli, config)) {
+
+            int current = 0;
+
             for (SQLFile sqlFile : sqlFiles) {
+                System.err.println("Processing file " + sqlFile.getFileName() + " [" + (++current) + "/" + sqlFiles.length + "]...");
 
                 try {
                     sqlFile.getQuery(null); // Первое обращение к этому методу загружает sql-файл в память
@@ -195,6 +200,7 @@ public class StartHere {
                 if (cli.fileIsUsed() && subs != null) {
                     try {
                         for (Map<String, String> sub; (sub = subs.next()) != null; ) {
+                            System.err.print("[" + subs.getRowID() + "]");
 
                             try {
                                 executeAndSave(
@@ -216,6 +222,9 @@ public class StartHere {
                                 + subsReadErr.getMessage());
                         System.exit(EXIT_INTERNAL_ERR);
                     }
+
+                    System.err.println();
+
                 } else {
 
                     try {
