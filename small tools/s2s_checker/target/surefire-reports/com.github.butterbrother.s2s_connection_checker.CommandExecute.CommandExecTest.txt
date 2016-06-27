@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.github.butterbrother.s2s_connection_checker.CommandExecute.CommandExecTest
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.946 sec
