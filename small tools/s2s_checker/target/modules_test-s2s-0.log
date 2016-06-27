@@ -1,0 +1,142 @@
+<2016-06-27 16:00:29.012> <INFO> <Connection manager> Starting connections 
+<2016-06-27 16:00:29.015> <INFO> <Listener> Waiting incoming 
+<2016-06-27 16:00:29.020> <FINE> <Listener> Accepting inbound connection 
+<2016-06-27 16:00:29.022> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Trying to connect 
+<2016-06-27 16:00:29.024> <INFO> <Client worker 127.0.0.1 (127.0.0.1:5000)> Connected 
+<2016-06-27 16:00:29.024> <FINE> <Listener> Accepted 
+<2016-06-27 16:00:29.025> <INFO> <Listener> Incoming connection from /127.0.0.1 accepted. 
+<2016-06-27 16:00:29.027> <FINE> <Listener> Accepting inbound connection 
+<2016-06-27 16:00:29.027> <INFO> <Listener worker 127.0.0.1 (127.0.0.1)> Connection started. 
+<2016-06-27 16:00:29.029> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 14032 
+<2016-06-27 16:00:29.129> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 22224 
+<2016-06-27 16:00:29.231> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 30416 
+<2016-06-27 16:00:29.332> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 38608 
+<2016-06-27 16:00:29.433> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 46800 
+<2016-06-27 16:00:29.534> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 54992 
+<2016-06-27 16:00:29.635> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 63184 
+<2016-06-27 16:00:29.737> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 71376 
+<2016-06-27 16:00:29.837> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 79568 
+<2016-06-27 16:00:29.837> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Currently total received bytes = 71376 
+<2016-06-27 16:00:29.938> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 87760 
+<2016-06-27 16:00:30.040> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 95952 
+<2016-06-27 16:00:30.140> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 104144 
+<2016-06-27 16:00:30.241> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 112336 
+<2016-06-27 16:00:30.342> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 120528 
+<2016-06-27 16:00:30.443> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 128720 
+<2016-06-27 16:00:30.544> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 136912 
+<2016-06-27 16:00:30.645> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 145104 
+<2016-06-27 16:00:30.746> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 153296 
+<2016-06-27 16:00:30.846> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 161488 
+<2016-06-27 16:00:30.846> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Currently total received bytes = 153296 
+<2016-06-27 16:00:30.948> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 169680 
+<2016-06-27 16:00:31.049> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 177872 
+<2016-06-27 16:00:31.151> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 186064 
+<2016-06-27 16:00:31.252> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 194256 
+<2016-06-27 16:00:31.352> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 202448 
+<2016-06-27 16:00:31.454> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 210640 
+<2016-06-27 16:00:31.555> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 218832 
+<2016-06-27 16:00:31.656> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 227024 
+<2016-06-27 16:00:31.756> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 235216 
+<2016-06-27 16:00:31.858> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 243408 
+<2016-06-27 16:00:31.858> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Currently total received bytes = 235216 
+<2016-06-27 16:00:31.960> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 251600 
+<2016-06-27 16:00:32.061> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 259792 
+<2016-06-27 16:00:32.162> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 267984 
+<2016-06-27 16:00:32.262> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 276176 
+<2016-06-27 16:00:32.363> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 284368 
+<2016-06-27 16:00:32.465> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 292560 
+<2016-06-27 16:00:32.566> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 300752 
+<2016-06-27 16:00:32.667> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 308944 
+<2016-06-27 16:00:32.767> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 317136 
+<2016-06-27 16:00:32.869> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 325328 
+<2016-06-27 16:00:32.869> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Currently total received bytes = 317136 
+<2016-06-27 16:00:32.970> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 333520 
+<2016-06-27 16:00:33.072> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 341712 
+<2016-06-27 16:00:33.173> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 349904 
+<2016-06-27 16:00:33.274> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 358096 
+<2016-06-27 16:00:33.375> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 366288 
+<2016-06-27 16:00:33.475> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 374480 
+<2016-06-27 16:00:33.576> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 382672 
+<2016-06-27 16:00:33.677> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 390864 
+<2016-06-27 16:00:33.777> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 399056 
+<2016-06-27 16:00:33.878> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 407248 
+<2016-06-27 16:00:33.878> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Currently total received bytes = 399056 
+<2016-06-27 16:00:33.978> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 415440 
+<2016-06-27 16:00:34.080> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 423632 
+<2016-06-27 16:00:34.180> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 431824 
+<2016-06-27 16:00:34.282> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 440016 
+<2016-06-27 16:00:34.383> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 448208 
+<2016-06-27 16:00:34.484> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 456400 
+<2016-06-27 16:00:34.586> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 464592 
+<2016-06-27 16:00:34.686> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 472784 
+<2016-06-27 16:00:34.787> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 480976 
+<2016-06-27 16:00:34.888> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 489168 
+<2016-06-27 16:00:34.888> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Currently total received bytes = 480976 
+<2016-06-27 16:00:34.989> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 497360 
+<2016-06-27 16:00:35.090> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 505552 
+<2016-06-27 16:00:35.190> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 513744 
+<2016-06-27 16:00:35.292> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 521936 
+<2016-06-27 16:00:35.392> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 530128 
+<2016-06-27 16:00:35.494> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 538320 
+<2016-06-27 16:00:35.595> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 546512 
+<2016-06-27 16:00:35.696> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 554704 
+<2016-06-27 16:00:35.798> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 562896 
+<2016-06-27 16:00:35.898> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 571088 
+<2016-06-27 16:00:35.898> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Currently total received bytes = 562896 
+<2016-06-27 16:00:36.000> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 579280 
+<2016-06-27 16:00:36.101> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 587472 
+<2016-06-27 16:00:36.201> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 595664 
+<2016-06-27 16:00:36.303> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 603856 
+<2016-06-27 16:00:36.403> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 612048 
+<2016-06-27 16:00:36.504> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 620240 
+<2016-06-27 16:00:36.604> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 628432 
+<2016-06-27 16:00:36.706> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 636624 
+<2016-06-27 16:00:36.807> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 644816 
+<2016-06-27 16:00:36.907> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 653008 
+<2016-06-27 16:00:36.907> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Currently total received bytes = 644816 
+<2016-06-27 16:00:37.008> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 661200 
+<2016-06-27 16:00:37.108> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 669392 
+<2016-06-27 16:00:37.210> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 677584 
+<2016-06-27 16:00:37.311> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 685776 
+<2016-06-27 16:00:37.411> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 693968 
+<2016-06-27 16:00:37.512> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 702160 
+<2016-06-27 16:00:37.612> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 710352 
+<2016-06-27 16:00:37.713> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 718544 
+<2016-06-27 16:00:37.815> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 726736 
+<2016-06-27 16:00:37.916> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 734928 
+<2016-06-27 16:00:37.916> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Currently total received bytes = 726736 
+<2016-06-27 16:00:38.017> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 743120 
+<2016-06-27 16:00:38.117> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 751312 
+<2016-06-27 16:00:38.219> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 759504 
+<2016-06-27 16:00:38.319> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 767696 
+<2016-06-27 16:00:38.421> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 775888 
+<2016-06-27 16:00:38.522> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 784080 
+<2016-06-27 16:00:38.623> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 792272 
+<2016-06-27 16:00:38.724> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 800464 
+<2016-06-27 16:00:38.825> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 808656 
+<2016-06-27 16:00:38.927> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 816848 
+<2016-06-27 16:00:38.927> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Currently total received bytes = 808656 
+<2016-06-27 16:00:39.012> <WARNING> <Listener> socket closed 
+<2016-06-27 16:00:39.013> <INFO> <Listener> Shutting down 
+<2016-06-27 16:00:39.013> <WARNING> <Listener worker 127.0.0.1 (127.0.0.1)> socket closed 
+<2016-06-27 16:00:39.013> <INFO> <Listener worker 127.0.0.1 (127.0.0.1)> Connection closed 
+<2016-06-27 16:00:39.014> <FINE> <Listener worker 127.0.0.1 (127.0.0.1)> Total received 816848 bytes. 
+<2016-06-27 16:00:39.028> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Currently total send bytes = 825040 
+<2016-06-27 16:00:39.113> <INFO> <Listener> Stopped 
+<2016-06-27 16:00:39.129> <SEVERE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Software caused connection abort: recv failed 
+<2016-06-27 16:00:39.131> <INFO> <Command executor [ping 127.0.0.1]> Command executed 
+<2016-06-27 16:00:39.230> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Trying to connect 
+<2016-06-27 16:00:40.229> <SEVERE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Connection refused: connect 
+<2016-06-27 16:00:40.329> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Trying to connect 
+<2016-06-27 16:00:41.331> <SEVERE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Connection refused: connect 
+<2016-06-27 16:00:41.433> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Trying to connect 
+<2016-06-27 16:00:42.012> <INFO> <Connection manager> Interrupted 
+<2016-06-27 16:00:42.065> <INFO> <Command executor [ping 127.0.0.1]> STDERR:  
+<2016-06-27 16:00:42.066> <INFO> <Command executor [ping 127.0.0.1]> STDIO: 
+Обмен пакетами с 127.0.0.1 по с 32 байтами данных:
+Ответ от 127.0.0.1: число байт=32 время<1мс TTL=128
+Ответ от 127.0.0.1: число байт=32 время<1мс TTL=128
+Ответ от 127.0.0.1: число байт=32 время<1мс TTL=128
+ 
+<2016-06-27 16:00:42.436> <FINE> <Client worker 127.0.0.1 (127.0.0.1:5000)> Total send 825040 bytes. 
+<2016-06-27 16:00:42.516> <INFO> <Connection manager> Stopped 
