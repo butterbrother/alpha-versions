@@ -90,7 +90,7 @@ public class ClientController
 
         // Запускаем все рабочие процессы
         for (Target target : configFile.getTargets()) {
-            workerThreads.add(new WorkerThread(
+            workerThreads.add(new DefaultClient(
                     this,
                     target,
                     log,
@@ -111,7 +111,7 @@ public class ClientController
 
         // Останавливаем все рабочие процессы
         for (WorkerThread thread : workerThreads)
-            thread.disable();
+            thread.inactivate();
 
         // Ждём, пока они не завершатся. Каждый рабочий процесс при завершении дёргает
         // ожидаем их завершения (они вызывают workerDome() по завершению, удаляющий их из списка. т.е. ждём очистки списка)
@@ -140,7 +140,7 @@ public class ClientController
      *
      * @param worker рабочий процесс
      */
-    void workerDone(WorkerThread worker) {
+    void workerDone(DefaultClient worker) {
         if (workerThreads != null)
             workerThreads.remove(worker);
     }

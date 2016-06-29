@@ -30,8 +30,8 @@ import java.util.logging.Logger;
  * <p>
  * Получает данные и тут же их отправляет (эхо).
  */
-class WorkerThread
-        implements Runnable, Comparable<WorkerThread> {
+class ConnectionHandler
+        implements Runnable, Comparable {
     private boolean active = true;
     private Socket inboundConnection;
     private String id;
@@ -45,7 +45,7 @@ class WorkerThread
      *
      * @param inboundConnection входящее соединение
      */
-    WorkerThread(Socket inboundConnection, int workerIndex, ServerController owner, Logger logger) {
+    ConnectionHandler(Socket inboundConnection, int workerIndex, ServerController owner, Logger logger) {
         this.inboundConnection = inboundConnection;
 
         String hostName = inboundConnection.getInetAddress().getHostName();
@@ -152,8 +152,8 @@ class WorkerThread
      * @return результат сравнения
      */
     @Override
-    public int compareTo(WorkerThread o) {
-        return index - o.index;
+    public int compareTo(Object o) {
+        return index - o.hashCode();
     }
 
     /**
@@ -170,15 +170,15 @@ class WorkerThread
      * Сравнение.
      * Проверяется только индекс рабочих потоков.
      *
-     * @param o объект вида {@link WorkerThread}
+     * @param o объект вида {@link ConnectionHandler}
      * @return true, если такой же объект и тот же индекс.
      */
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof WorkerThread))
+        if (!(o instanceof ConnectionHandler))
             return false;
 
-        WorkerThread remote = (WorkerThread) o;
+        ConnectionHandler remote = (ConnectionHandler) o;
 
         return remote.index == index;
     }

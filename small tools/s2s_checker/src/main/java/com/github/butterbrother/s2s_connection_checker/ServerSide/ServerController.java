@@ -40,7 +40,7 @@ public class ServerController implements Runnable {
     private ConfigFile configFile;
     private ServerSocket currentServerSocker = null;
     private Thread masterThread = null;
-    private ConcurrentLinkedDeque<WorkerThread> workerThreads = null;
+    private ConcurrentLinkedDeque<ConnectionHandler> connectionHandlers = null;
     private Logger log;
     private Logger masterLog;
 
@@ -73,7 +73,7 @@ public class ServerController implements Runnable {
      * Создаёт серверный сокет, который принимает и обрабатывает входящие подключения.
      */
     public void run() {
-        workerThreads = new ConcurrentLinkedDeque<>();
+        connectionHandlers = new ConcurrentLinkedDeque<>();
 
         int workerIndex = 0;
 
@@ -104,7 +104,7 @@ public class ServerController implements Runnable {
                             log.info("Incoming connection from " + inbound.getInetAddress().toString() + " accepted.");
 
                             // Даём добро
-                            workerThreads.add(new WorkerThread(inbound, workerIndex++, this, masterLog));
+                            connectionHandlers.add(new ConnectionHandler(inbound, workerIndex++, this, masterLog));
                         } else
                             log.info("Incoming connection from " + inbound.getInetAddress().toString() + " rejected.");
 
@@ -123,11 +123,11 @@ public class ServerController implements Runnable {
         log.info("Shutting down");
 
         // Останавливаем все обработчики
-        for (WorkerThread thread : workerThreads)
+        for (ConnectionHandler thread : connectionHandlers)
             thread.inactivate();
 
         // ожидаем их завершения (они вызывают workerDome() по завершению, удаляющий их из списка. т.е. ждём очистки списка)
-        while (workerThreads.size() > 0)
+        while (connectionHandlers.size() > 0)
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ignore) {
@@ -171,9 +171,9 @@ public class ServerController implements Runnable {
      *
      * @param worker рабочий процесс
      */
-    void workerDone(WorkerThread worker) {
-        if (workerThreads != null) {
-            workerThreads.remove(worker);
+    void workerDone(ConnectionHandler worker) {
+        if (connectionHandlers != null) {
+            connectionHandlers.remove(worker);
         }
     }
 
