@@ -24,6 +24,7 @@ public class StartHere {
     private static byte[] buffer = new byte[4096];
     // Энкодер в base64, что бы хранить строку, а не массив байт в дереве
     private static Base64.Encoder encoder = Base64.getEncoder();
+    private static boolean deleteFiles = false;
 
     /**
      * Точка входа в приложение.
@@ -31,6 +32,9 @@ public class StartHere {
      */
     public static void main(String args[]) {
         Path source;
+
+        String doDelete = System.getProperty("delete.files");
+        deleteFiles = doDelete != null && Integer.parseInt(doDelete) > 0;
 
         try {
             md5 = MessageDigest.getInstance("MD5");
@@ -73,6 +77,15 @@ public class StartHere {
                         String previousValue = unique.put(stringDigest, item.toString());
                         if (previousValue != null) {
                             System.out.println(item.toString() + "\tduplicate of\t" + previousValue);
+                            if (deleteFiles) {
+                                try {
+                                    Files.delete(item);
+                                    System.out.println(item.toString() + " deleted.");
+                                } catch (IOException dErr) {
+                                    System.err.println("Unable to delete file " + item.toString() + ": " +
+                                        dErr.getLocalizedMessage());
+                                }
+                            }
                             // вертаем взад оригинальное имя файла
                             unique.put(stringDigest, previousValue);
                         }
