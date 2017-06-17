@@ -79,3 +79,4 @@ com_crashlytics_export_strings.xml
 *.hex
 # Debug files
 *.dSYM/
+/learn/java/webapps/Downloader/nbproject/private/
