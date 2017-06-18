@@ -6,6 +6,7 @@
 package murach.download;
 
 import java.io.IOException;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -54,7 +55,7 @@ public class DownloadServlet extends HttpServlet {
 	}
 
 	private String checkUser(HttpServletRequest request,
-		HttpServletResponse response) {
+		HttpServletResponse response) throws IOException {
 
 		String productCode = request.getParameter("productCode");
 		HttpSession session = request.getSession();
@@ -68,15 +69,40 @@ public class DownloadServlet extends HttpServlet {
 			String url;
 			if (user == null) {
 				Cookie cookies[] = request.getCookies();
-				
+
+				String emailAddress = getCookieValue(cookies, "emailCookie");
+
+				if (emailAddress == null || emailAddress.isEmpty()) {
+					url = "/register.jsp";
+				} else {
+					ServletContext servletContext = getServletContext();
+					String path = servletContext.getRealPath("/WEB-INF/EmailList.txt");
+					user = UserIO.getUser(emailAddress, path);
+					
+					if (user == null) {
+						url = "/register.jsp";
+					} else {
+						session.setAttribute("user", user);
+						url = "/downloadPage.jsp";
+					}
+				}
+			} else {
+				url = "/downloadPage.jsp";
 			}
 
-			return null;
-		}
 
+			return url;
+		}
 	}
 
-	private String getCookieValue()
+	private String getCookieValue(Cookie cookies[], String searchName) {
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals(searchName))
+				return cookie.getValue();
+		}
+
+		return null;
+	}
 
 	private String registerUser(HttpServletRequest request,
 		HttpServletResponse response) {
