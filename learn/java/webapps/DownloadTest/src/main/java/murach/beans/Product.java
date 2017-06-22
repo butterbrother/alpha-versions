@@ -1,9 +1,11 @@
 package murach.beans;
 
+import java.io.Serializable;
+
 /**
  * Created by somebody on 19.06.2017.
  */
-public class Product {
+public class Product implements Serializable {
 
     private String name;
     private String title;

@@ -1,13 +1,26 @@
-<!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtd/web-app_2_3.dtd" >
+<?xml version="1.0" encoding="UTF-8"?>
 
-<web-app>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+
     <display-name>Downloader</display-name>
 
     <servlet>
         <servlet-name>DownloadServlet</servlet-name>
         <servlet-class>murach.download.DownloadServlet</servlet-class>
+        <init-param>
+            <param-name>emailListFile</param-name>
+            <param-value>/WEB-INF/EmailList.txt</param-value>
+        </init-param>
+        <init-param>
+            <param-name>emailCookieName</param-name>
+            <param-value>emailCookie</param-value>
+        </init-param>
+        <init-param>
+            <param-name>productsListFile</param-name>
+            <param-value>/WEB-INF/Products.txt</param-value>
+        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>DownloadServlet</servlet-name>

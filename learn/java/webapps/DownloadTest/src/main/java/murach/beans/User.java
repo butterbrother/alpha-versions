@@ -46,4 +46,9 @@ public class User implements Serializable {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
+    public boolean isFillAllFields() {
+        return email != null && firstName != null && lastName != null
+                && !email.isEmpty() && !firstName.isEmpty() && !lastName.isEmpty();
+    }
 }

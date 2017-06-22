@@ -4,11 +4,14 @@ package murach.download;
  * Created by somebody on 19.06.2017.
  */
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.locks.ReentrantLock;
 import murach.beans.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class UserIO {
@@ -39,7 +42,24 @@ public class UserIO {
         return null;
     }
 
-    @org.jetbrains.annotations.NotNull
+    public static void addUser(User user, String emailListPath)
+        throws IOException {
+
+        rwLock.lock();
+
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(emailListPath), StandardOpenOption.APPEND)) {
+            writer
+                .append(user.getEmail())
+                .append(";")
+                .append(user.getFirstName())
+                .append(";")
+                .append(user.getLastName());
+        } finally {
+            rwLock.unlock();
+        }
+    }
+
+    @NotNull
     private static User readEmailRow(String inputRow) {
         String splitted[] = inputRow.split(";");
 

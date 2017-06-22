@@ -36,7 +36,7 @@
     <input type="text" name="lastName" id="lastName" value="${user.lastName}">
     <br>
 
-    <label for="register">&n&nbsp;</label>
+    <label for="register">&nbsp;</label>
     <input type="submit" value="Register" id="register" class="margin_left">
 </form>
 
