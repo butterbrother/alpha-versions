@@ -1,0 +1,3 @@
+> java --module-path mods --module c.vdh.load/loader.StartHere
+Error occurred during initialization of boot layer
+java.lang.LayerInstantiationException: Package same in both module c.vdh.two and module c.vdh.one

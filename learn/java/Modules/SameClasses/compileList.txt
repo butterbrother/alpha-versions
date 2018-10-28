@@ -1,0 +1,8 @@
+C:\Users\somebody\Documents\Develop\java\alpha-versions\learn\java\Modules\SameClasses\src\c.vdh.load\module-info.java
+C:\Users\somebody\Documents\Develop\java\alpha-versions\learn\java\Modules\SameClasses\src\c.vdh.load\loader\StartHere.java
+C:\Users\somebody\Documents\Develop\java\alpha-versions\learn\java\Modules\SameClasses\src\c.vdh.one\module-info.java
+C:\Users\somebody\Documents\Develop\java\alpha-versions\learn\java\Modules\SameClasses\src\c.vdh.one\export1\Export1.java
+C:\Users\somebody\Documents\Develop\java\alpha-versions\learn\java\Modules\SameClasses\src\c.vdh.one\same\Example.java
+C:\Users\somebody\Documents\Develop\java\alpha-versions\learn\java\Modules\SameClasses\src\c.vdh.two\module-info.java
+C:\Users\somebody\Documents\Develop\java\alpha-versions\learn\java\Modules\SameClasses\src\c.vdh.two\export2\Export2.java
+C:\Users\somebody\Documents\Develop\java\alpha-versions\learn\java\Modules\SameClasses\src\c.vdh.two\same\Example.java

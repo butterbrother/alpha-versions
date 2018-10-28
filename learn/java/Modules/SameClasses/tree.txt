@@ -1,0 +1,23 @@
++---c.vdh.load
+|   |   module-info.class
+|   |   
+|   \---loader
+|           StartHere.class
+|           
++---c.vdh.one
+|   |   module-info.class
+|   |   
+|   +---export1
+|   |       Export1.class
+|   |       
+|   \---same
+|           Example.class
+|           
+\---c.vdh.two
+    |   module-info.class
+    |   
+    +---export2
+    |       Export2.class
+    |       
+    \---same
+            Example.class
